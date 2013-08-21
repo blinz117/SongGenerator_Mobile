@@ -1,22 +1,32 @@
 package com.blinz117.songgenerator;
 
-import com.blinz117.songgenerator.SongWriter.*;
+import java.io.*;
 
+import com.blinz117.songgenerator.SongWriter.*;
+import com.blinz117.songgenerator.MidiManager;
+import com.leff.midi.*;
+
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class MainActivity extends Activity implements OnItemSelectedListener{
+public class MainActivity extends Activity implements OnItemSelectedListener, OnCompletionListener{
 
 	Spinner timeSigNumSpin;
 	Spinner timeSigDenomSpin;
 	Button songGenButton;
 	TextView songStructureView;
+	Button playButton;
 	
 	SongWriter songWriter;
 	Song currSong;
+	
+	MediaPlayer mediaPlayer;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +52,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 		songGenButton.setOnClickListener(onSongGenerate);
 		songStructureView = (TextView)findViewById(R.id.songStructure);
 		
+		playButton = (Button)findViewById(R.id.songPlay);
+		playButton.setOnClickListener(onPlaySong);
 		songWriter = new SongWriter();
 		currSong = null;
+		
+		mediaPlayer = new MediaPlayer();
+		mediaPlayer.setOnCompletionListener(this);
 	}
 
 //	@Override
@@ -68,6 +83,58 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 			
 			
 			songStructureView.setText(displayString);
+			
+			MidiManager midiManager = new MidiManager();
+			MidiFile midiSong = midiManager.generateChordMidi(currSong, songWriter.mTimeSigNumer, songWriter.mTimeSigDenom);
+			
+			File midiOut = new File(getApplicationContext().getFilesDir(), "tempOut.mid");
+			try {
+				midiSong.writeToFile(midiOut);
+			} 
+			catch(Exception e) {
+				Context context = getApplicationContext();
+				CharSequence text = "Oops! Something bad happened trying to create a new MIDI!";
+				int duration = Toast.LENGTH_SHORT;
+
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+			}
+			
+			playButton.setEnabled(true);
+		}
+	};
+	
+	View.OnClickListener onPlaySong = new View.OnClickListener() {
+		public void onClick(View view)
+		{			
+			if (mediaPlayer.isPlaying())
+			{
+				mediaPlayer.stop();
+				mediaPlayer.reset();
+			}
+			
+			FileInputStream midiStream;
+			try 
+			{
+				midiStream = openFileInput(getResources().getString(R.string.temp_midi));
+				FileDescriptor fd = midiStream.getFD();
+				mediaPlayer.setDataSource( fd );
+				mediaPlayer.prepare();
+				mediaPlayer.start();
+				
+				playButton.setEnabled(false);
+				songGenButton.setEnabled(false);
+			}
+			catch  (Exception e) 
+			{ 
+				Context context = getApplicationContext();
+				CharSequence text = "Oops! Something bad happened trying to find your MIDI! Here's the message: " + e.getMessage();
+				int duration = Toast.LENGTH_SHORT;
+
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+			}
+			
 		}
 	};
 
@@ -85,6 +152,14 @@ public class MainActivity extends Activity implements OnItemSelectedListener{
 	@Override
     public void onNothingSelected(AdapterView<?> parent) {
 		//Nothing to do as far as I can tell
+	}
+
+	@Override
+	public void onCompletion(MediaPlayer mp) {
+		songGenButton.setEnabled(true);
+		playButton.setEnabled(true);
+		
+		mp.reset();
 	}
 
 }

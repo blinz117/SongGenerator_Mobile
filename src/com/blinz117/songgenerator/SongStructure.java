@@ -1,0 +1,55 @@
+package com.blinz117.songgenerator;
+
+public class SongStructure {
+	
+	// these describe the intervals (in semi-tones) between the notes
+	// in each scale
+	static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
+	static final int[] MAJORSCALEINTERVALS = {0, 2, 4, 5, 7, 9, 11};
+	
+	static final int[] NATURALMINORSCALE = {2, 1, 2, 2, 1, 2, 2};
+	static final int[] NATMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 10};
+	
+	static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
+	static final int[] HARMMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 11};
+	
+	public enum Pitch {C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B }
+	Pitch[] PITCHES = Pitch.values();
+	static final int NUMPITCHES = 12;
+	
+	
+	
+	// currently generates a triad based on a major scale. Will eventually extend this
+	// MAKE THIS BETTER!!!!
+	public static int[] generateTriad(int root)
+	{
+		int[] triad = new int[3];
+		triad[0] = MAJORSCALEINTERVALS[root - 1]; 
+		triad[1] = MAJORSCALEINTERVALS[(root + 1) % 7];
+		triad[2] = MAJORSCALEINTERVALS[(root + 3) % 7];
+		
+		return triad;
+	}
+	
+	////////////////////////////////////////////////////
+	//This is a playground for testing at the moment:
+	
+/*	static final double[] TONICCHANCES = 	{0, 2, 4, 10, 8, 4, 0.5};
+	static final double[] SECONDCHANCES = 	{4, 0, 2, 5, 6, 2, 0.25};
+	static final double[] THIRDCHANCES =	{3, 2, 0, 6, 6, 4, 0.25};
+	static final double[] FOURTHCHANCES = 	{6, 4, 4, 0, 10, 4, 0.25};
+	static final double[] FIFTHCHANCES = 	{10, 3, 3, 6, 0, 4, 0.5};
+	static final double[] SIXTHCHANCES = 	{3, 2, 5, 5, 5, 0, 0.5};
+	static final double[] SEVENTHCHANCES = 	{10, 1, 1, 3, 4, 1, 0};*/
+	
+	static final double[][] chordChances = {
+		{0, 2, 4, 10, 8, 4, 0.5},
+		{4, 0, 2, 5, 6, 2, 0.25},
+		{3, 2, 0, 6, 6, 4, 0.25},
+		{6, 4, 4, 0, 10, 4, 0.25},
+		{10, 3, 3, 6, 0, 4, 0.5},
+		{3, 2, 5, 5, 5, 0, 0.5},
+		{10, 1, 1, 3, 4, 1, 0}
+	};
+
+}

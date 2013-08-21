@@ -3,13 +3,11 @@ package com.blinz117.songgenerator;
 import java.util.Random;
 import java.util.ArrayList;
 
+import com.blinz117.songgenerator.SongStructure.*;
+
 public class SongWriter {
 
-	// these describe the intervals (in semi-tones) between the notes
-	// in each scale
-	static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
-	static final int[] NATURALMINROSCALE = {2, 1, 2, 2, 1, 2, 2};
-	static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
+	
 	
 	static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
 	static final int NUMCHORDS = CHORDPROBS.length;
@@ -19,9 +17,6 @@ public class SongWriter {
 	
 	// Define the pitches present in the "Western" system
 	// (forgive my ignorance on naming conventions)
-	public enum Pitch {C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B }
-	Pitch[] PITCHES;
-	static final int NUMPITCHES = 12;
 	
 	Random randGen;
 	
@@ -36,8 +31,6 @@ public class SongWriter {
 		{
 			probSums += CHORDPROBS[ndx];
 		}
-		
-		PITCHES = Pitch.values();
 		
 		randGen = new Random();
 		
@@ -95,8 +88,26 @@ public class SongWriter {
 			int numChords = 4*(randGen.nextInt(3) + 1);
 			for (int chord = 0; chord < numChords; chord++)
 			{
-				int nextChord = pickNdxByProb(CHORDPROBS) + 1;
+				int nextChord = Utils.pickNdxByProb(CHORDPROBS) + 1;
 				chordProg.add(nextChord);
+			}
+			return chordProg;			
+		}
+		
+		// slightly better(?) "algortihm" for generating chord progressions
+		public ArrayList<Integer> generateBetterChordProgression()
+		{
+			ArrayList<Integer> chordProg = new ArrayList<Integer>();
+			
+			int currChord = Utils.pickNdxByProb(CHORDPROBS);
+			chordProg.add(currChord + 1);
+			
+			// make it an even number of chords for now
+			int numChords = 4*(randGen.nextInt(3) + 1);
+			for (int chord = 1; chord < numChords; chord++)
+			{
+				currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
+				chordProg.add(currChord + 1);
 			}
 			return chordProg;			
 		}
@@ -115,7 +126,7 @@ public class SongWriter {
 				{
 					probs[prob] = (double)(probs.length - prob);
 				}
-				int numBeats = pickNdxByProb(probs) + 1;
+				int numBeats = Utils.pickNdxByProb(probs) + 1;
 				if (numBeats < 0)
 					continue;
 				
@@ -172,7 +183,7 @@ public class SongWriter {
 			rhythm1 = generateRhythm();
 			
 			// now generate chord progression for each segment
-			verseChords = generateChordProgression();
+			verseChords = generateBetterChordProgression();
 			chorusChords = generateChordProgression();
 			bridgeChords = generateChordProgression();
 			
@@ -181,42 +192,5 @@ public class SongWriter {
 		} // writeNewSong
 		
 	} //class Song
-	
-	/*
-	 * returns an index into an array based on the probabilities in the array
-	 * The values in the array do not have to add up to 1. They will be scaled if not.
-	 * returns -1 if something goes wrong
-	 */
-	public int pickNdxByProb(double[] probs)
-	{
-		// make sure it has a length
-		if (probs.length < 1)
-			return -1;
-		
-		double probTotal = 0.0;
-		for (int prob = 0; prob < probs.length; prob++)
-		{			
-			//get sum total of all probabilities
-			probTotal += probs[prob];
-		}
-		
-		//Random randGen = new Random();
-		double goalVal = randGen.nextDouble();
-		double curProbSum = 0.0;
-		for (int ndx = 0; ndx < probs.length; ndx++)
-		{			
-			//check probability to see if we found the one
-			curProbSum += probs[ndx]/probTotal;
-			if (goalVal < curProbSum)
-			{
-				// found the one we want
-				return ndx;
-			}
-		}
-		
-		//sentinel: should never get here
-		return -1;
-		
-	}//pickNdxByProb
 	
 } //class SongWriter
