@@ -13,11 +13,13 @@ public class SongStructure {
 	static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
 	static final int[] HARMMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 11};
 	
+	// Define the pitches present in the "Western" system
+	// (forgive my ignorance on naming conventions)
 	public enum Pitch {C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B }
 	Pitch[] PITCHES = Pitch.values();
 	static final int NUMPITCHES = 12;
 	
-	
+	public enum SongPart { VERSE, CHORUS, BRIDGE }
 	
 	// currently generates a triad based on a major scale. Will eventually extend this
 	// MAKE THIS BETTER!!!!
@@ -33,6 +35,12 @@ public class SongStructure {
 	
 	////////////////////////////////////////////////////
 	//This is a playground for testing at the moment:
+	
+	/*
+	 * TODO: Should this really be here? Does it make more sense in the SongWriter?
+	 * It is not really specific to song structure itself... more like song writing?
+	 * I dunno... think about it some more...
+	 */
 	
 /*	static final double[] TONICCHANCES = 	{0, 2, 4, 10, 8, 4, 0.5};
 	static final double[] SECONDCHANCES = 	{4, 0, 2, 5, 6, 2, 0.25};
