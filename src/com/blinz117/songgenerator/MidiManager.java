@@ -106,6 +106,7 @@ public class MidiManager {
 		int basePitch = 60;
 		int velocity = 100;
 		ArrayList<Integer> chords = song.verseChords;
+		ArrayList<Integer> themeNotes = song.theme;
 		for (int ndx = 0; ndx < chords.size(); ndx++)
 		{
 			int root = chords.get(ndx);
@@ -113,8 +114,24 @@ public class MidiManager {
 			
 			for (int interval = 0; interval < 3; interval++)
 			{
-				noteTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * 2, qtrNote * 2);
+				noteTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * timeSigNum, qtrNote * timeSigNum);
 			}
+			
+			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
+			{
+				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
+				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
+				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
+			}*/
+			
+			themeNotes = song.melody.get(ndx);
+			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
+			{
+				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
+				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
+				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
+			}
+
 		}
 		
 		// It's best not to manually insert EndOfTrack events; MidiTrack will

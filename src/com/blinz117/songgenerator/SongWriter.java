@@ -66,48 +66,21 @@ public class SongWriter {
 			partProbs[songPartNdx] = 0.1;
 		}
 		
-		masterpiece.rhythm1 = generateRhythm();
-		
 		// now generate chord progression for each segment
 		masterpiece.verseChords = generateBetterChordProgression();
 		masterpiece.chorusChords = generateChordProgression();
 		masterpiece.bridgeChords = generateChordProgression();
 		
-		masterpiece.rhythm2 = null;
+		masterpiece.rhythm1 = generateRhythm();
 		masterpiece.rhythm2 = generateRhythm();
+		
+		masterpiece.theme = generateTheme();
+		
+		masterpiece.melody = generateMelody(masterpiece.verseChords);
 		
 		return masterpiece;
 	} // writeNewSong
 	
-	/*
-	 * TODO: Make Song a more "struct-like" class; it may make more sense if it just holds information
-	 * rather than writing itself(?)... that is what the songwriter class is really for.
-	 * Also, maybe make it external to the SongWriter(?)
-	 */
-/*	public class Song
-	{
-		ArrayList<SongPart> vStructure;
-		
-		ArrayList<Integer> verseChords;
-		ArrayList<Integer> chorusChords;
-		ArrayList<Integer> bridgeChords;
-		
-		ArrayList<Integer> rhythm1;
-		ArrayList<Integer> rhythm2;
-		
-		public Song(){
-			vStructure = new ArrayList<SongPart>();
-			
-			verseChords = null;
-			chorusChords = null;
-			bridgeChords = null;
-			
-			rhythm1 = null;
-			rhythm2 = null;
-		}
-			
-	} //class Song
-*/	
 	/*
 	 * Generation methods
 	 */
@@ -170,6 +143,29 @@ public class SongWriter {
 			rhythm.add(numBeats);
 		}
 		return rhythm;
+	}
+	
+	public ArrayList<Integer> generateTheme()
+	{
+		ArrayList<Integer> theme = new ArrayList<Integer>();
+		
+		double[] probs = {5, 1, 5, 1, 5, 1, 0};
+		for (int note = 0; note < mTimeSigNumer; note++)
+		{
+			theme.add(Utils.pickNdxByProb(probs) + 1);
+		}
+				
+		return theme;
+	}
+	
+	public ArrayList<ArrayList<Integer>> generateMelody(ArrayList<Integer> chords)
+	{
+		ArrayList<ArrayList<Integer>> melody = new ArrayList<ArrayList<Integer>>();
+		for (int chord = 0; chord < chords.size(); chord++)
+		{
+			melody.add(generateTheme());
+		}
+		return melody;
 	}
 	
 } //class SongWriter

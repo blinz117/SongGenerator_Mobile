@@ -15,6 +15,10 @@ public class Song
 	ArrayList<Integer> rhythm1;
 	ArrayList<Integer> rhythm2;
 	
+	ArrayList<Integer> theme;
+	
+	ArrayList<ArrayList<Integer>> melody;
+	
 	public Song(){
 		vStructure = new ArrayList<SongPart>();
 		
@@ -24,6 +28,10 @@ public class Song
 		
 		rhythm1 = null;
 		rhythm2 = null;
+		
+		theme = null;
+		
+		melody = null;
 	}
 	
 	public class Chord

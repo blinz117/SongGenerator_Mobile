@@ -80,6 +80,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 			displayString += "\nRhythm1: " + currSong.rhythm1;
 			displayString += "\nRhythm2: " + currSong.rhythm2;
 			
+			displayString += "\nTheme: " + currSong.theme;
+			
+			displayString += "\nMelody: " + currSong.melody;
 			
 			songStructureView.setText(displayString);
 			
@@ -110,6 +113,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 			{
 				mediaPlayer.stop();
 				mediaPlayer.reset();
+				
+				songGenButton.setEnabled(true);
+				playButton.setText(getResources().getString(R.string.play_song));
+				return;
 			}
 			
 			FileInputStream midiStream;
@@ -121,7 +128,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 				mediaPlayer.prepare();
 				mediaPlayer.start();
 				
-				playButton.setEnabled(false);
+				//playButton.setEnabled(false);
+				playButton.setText("Stop playing!");
 				songGenButton.setEnabled(false);
 			}
 			catch  (Exception e) 
@@ -156,7 +164,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		songGenButton.setEnabled(true);
-		playButton.setEnabled(true);
+		//playButton.setEnabled(true);
+		playButton.setText(getResources().getString(R.string.play_song));
 		
 		mp.reset();
 	}
