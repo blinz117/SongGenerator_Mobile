@@ -9,8 +9,6 @@ import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
 
-//import com.blinz117.songgenerator.SongWriter.*;
-
 public class MidiManager {
 
 	public MidiManager()
@@ -128,7 +126,7 @@ public class MidiManager {
 			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
 				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
+				int pitch = basePitch + SongStructure.MAJORSCALEINTERVALS[(root + themeNotes.get(melodyNote)) % 7] + 12;
 				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
 			}
 
