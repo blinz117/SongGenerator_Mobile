@@ -45,21 +45,47 @@ public class SongWriter {
 	public void setTimeSigNumerator(int newNumer) { mTimeSigNumer = newNumer; }
 	public void setTimeSigDenominator(int newDenom) { mTimeSigDenom = newDenom; }
 	
-	public Song writeSong()
+	
+	public Song writeNewSong()
 	{
 		Song masterpiece = new Song();
-		masterpiece.writeNewSong();
+		
+		// Generate probabilities
+		// TODO: Probably want to put this into its own method when more stuff is added
+		double[] partProbs = basePartProbs;
+		//int numPartTypes = partProbs.length;
+		
+		int iNumParts = randGen.nextInt(2) + 4;
+		
+		for (int iPart = 0; iPart < iNumParts; iPart++)
+		{
+			int songPartNdx = Utils.pickNdxByProb(partProbs);
+			
+			masterpiece.vStructure.add(SongPart.values()[songPartNdx]);//nextPart);
+			partProbs = basePartProbs;
+			partProbs[songPartNdx] = 0.1;
+		}
+		
+		masterpiece.rhythm1 = generateRhythm();
+		
+		// now generate chord progression for each segment
+		masterpiece.verseChords = generateBetterChordProgression();
+		masterpiece.chorusChords = generateChordProgression();
+		masterpiece.bridgeChords = generateChordProgression();
+		
+		masterpiece.rhythm2 = null;
+		masterpiece.rhythm2 = generateRhythm();
+		
 		return masterpiece;
-	}
+	} // writeNewSong
 	
 	/*
 	 * TODO: Make Song a more "struct-like" class; it may make more sense if it just holds information
 	 * rather than writing itself(?)... that is what the songwriter class is really for.
 	 * Also, maybe make it external to the SongWriter(?)
 	 */
-	public class Song
+/*	public class Song
 	{
-		Random randGen;
 		ArrayList<SongPart> vStructure;
 		
 		ArrayList<Integer> verseChords;
@@ -70,8 +96,6 @@ public class SongWriter {
 		ArrayList<Integer> rhythm2;
 		
 		public Song(){
-			randGen = new Random();
-			//randGen = new Random();
 			vStructure = new ArrayList<SongPart>();
 			
 			verseChords = null;
@@ -81,62 +105,9 @@ public class SongWriter {
 			rhythm1 = null;
 			rhythm2 = null;
 		}
-		
-		public void writeNewSong()
-		{
-			// Generate probabilities
-			// TODO: Probably want to put this into its own method when more stuff is added
-			double[] partProbs = basePartProbs;
-			//int numPartTypes = partProbs.length;
 			
-			int iNumParts = randGen.nextInt(2) + 4;
-			
-			for (int iPart = 0; iPart < iNumParts; iPart++)
-			{
-				//double nextChoice = randGen.nextDouble();
-				//double probSum = 0.0;
-				//Boolean bContinueChecking = true;
-				// TODO: can probably refactor this to use the findNdxByProb function in Utils
-				int songPartNdx = Utils.pickNdxByProb(partProbs);
-				
-				/*for (int ndx = 0; ndx < partProbs.length; ndx++)
-				{
-					
-					if (bContinueChecking)
-					{
-						nextPart = SongPart.values()[ndx];
-						
-						//check probability to see if we found the one
-						probSum += partProbs[ndx];
-						if (nextChoice < probSum)
-						{
-							// found the one we want
-							bContinueChecking = false;
-							partProbs[ndx] = 0.025;
-							continue;
-						}
-					}
-					// reset probability
-					partProbs[ndx] = 0.975/(numPartTypes - 1);
-				}*/
-				vStructure.add(SongPart.values()[songPartNdx]);//nextPart);
-				partProbs = basePartProbs;
-				partProbs[songPartNdx] = 0.1;
-			}
-			
-			rhythm1 = generateRhythm();
-			
-			// now generate chord progression for each segment
-			verseChords = generateBetterChordProgression();
-			chorusChords = generateChordProgression();
-			bridgeChords = generateChordProgression();
-			
-			rhythm2 = null;
-			rhythm2 = generateRhythm();
-		} // writeNewSong
-		
 	} //class Song
-	
+*/	
 	/*
 	 * Generation methods
 	 */

@@ -2,7 +2,6 @@ package com.blinz117.songgenerator;
 
 import java.io.*;
 
-import com.blinz117.songgenerator.SongWriter.*;
 import com.blinz117.songgenerator.MidiManager;
 import com.leff.midi.*;
 
@@ -71,7 +70,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	View.OnClickListener onSongGenerate = new View.OnClickListener() {
 		public void onClick(View view)
 		{
-			Song currSong = songWriter.writeSong();
+			Song currSong = songWriter.writeNewSong();
 			String displayString = "Time Signature: ";
 			displayString += songWriter.getTimeSigNumerator() + "/" + songWriter.getTimeSigDenominator();
 			displayString = displayString + "\n" + currSong.vStructure.toString();

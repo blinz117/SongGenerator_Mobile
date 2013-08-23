@@ -9,8 +9,6 @@ import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
 
-import com.blinz117.songgenerator.SongWriter.Song;
-
 //import com.blinz117.songgenerator.SongWriter.*;
 
 public class MidiManager {
