@@ -108,7 +108,7 @@ public class MidiManager {
 		for (int ndx = 0; ndx < chords.size(); ndx++)
 		{
 			int root = chords.get(ndx);
-			int[] triad = SongStructure.generateTriad(root);
+			int[] triad = SongStructure.generateTriad(root, song.scaleType);
 			
 			for (int interval = 0; interval < 3; interval++)
 			{
@@ -126,7 +126,7 @@ public class MidiManager {
 			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
 				int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + SongStructure.MAJORSCALEINTERVALS[(root + themeNotes.get(melodyNote)) % 7] + 12;
+				int pitch = basePitch + SongStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7] + 12;
 				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
 			}
 

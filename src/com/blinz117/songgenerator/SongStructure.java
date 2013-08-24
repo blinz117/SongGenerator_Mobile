@@ -2,6 +2,8 @@ package com.blinz117.songgenerator;
 
 public class SongStructure {
 	
+	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR };
+	
 	// these describe the intervals (in semi-tones) between the notes
 	// in each scale
 	static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
@@ -19,18 +21,34 @@ public class SongStructure {
 	Pitch[] PITCHES = Pitch.values();
 	static final int NUMPITCHES = 12;
 	
-	public enum SongPart { VERSE, CHORUS, BRIDGE }
+	public enum SongPart { VERSE, CHORUS, BRIDGE };
 	
 	// currently generates a triad based on a major scale. Will eventually extend this
 	// MAKE THIS BETTER!!!!
-	public static int[] generateTriad(int root)
+	public static int[] generateTriad(int root, ScaleType scaleType)
 	{
+		int[] scaleIntervals = getScaleIntervals(scaleType);
 		int[] triad = new int[3];
-		triad[0] = MAJORSCALEINTERVALS[root - 1]; 
-		triad[1] = MAJORSCALEINTERVALS[(root + 1) % 7];
-		triad[2] = MAJORSCALEINTERVALS[(root + 3) % 7];
+		triad[0] = scaleIntervals[root - 1]; 
+		triad[1] = scaleIntervals[(root + 1) % 7];
+		triad[2] = scaleIntervals[(root + 3) % 7];
 		
 		return triad;
+	}
+	
+	public static int[] getScaleIntervals(ScaleType type)
+	{
+		switch (type)
+		{
+		case MAJOR:
+			return MAJORSCALEINTERVALS;
+		case NATURALMINOR:
+			return NATMINORSCALEINTERVALS;
+		case HARMONICMINOR:
+			return HARMMINORSCALEINTERVALS;
+		default:
+			return null;
+		}
 	}
 	
 	////////////////////////////////////////////////////
@@ -42,13 +60,6 @@ public class SongStructure {
 	 * I dunno... think about it some more...
 	 */
 	
-/*	static final double[] TONICCHANCES = 	{0, 2, 4, 10, 8, 4, 0.5};
-	static final double[] SECONDCHANCES = 	{4, 0, 2, 5, 6, 2, 0.25};
-	static final double[] THIRDCHANCES =	{3, 2, 0, 6, 6, 4, 0.25};
-	static final double[] FOURTHCHANCES = 	{6, 4, 4, 0, 10, 4, 0.25};
-	static final double[] FIFTHCHANCES = 	{10, 3, 3, 6, 0, 4, 0.5};
-	static final double[] SIXTHCHANCES = 	{3, 2, 5, 5, 5, 0, 0.5};
-	static final double[] SEVENTHCHANCES = 	{10, 1, 1, 3, 4, 1, 0};*/
 	
 	static final double[][] chordChances = {
 		{0, 2, 4, 10, 8, 4, 0.5},

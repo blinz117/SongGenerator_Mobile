@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
+import com.blinz117.songgenerator.SongStructure.ScaleType;
 import com.blinz117.songgenerator.SongStructure.*;
 
 import com.leff.midi.*;
@@ -83,6 +84,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	    	
 	    	savedInstanceState.putSerializable("TSNUM", currSong.timeSigNum);
 	    	savedInstanceState.putSerializable("TSDENOM", currSong.timeSigDenom);
+	    	
+	    	savedInstanceState.putSerializable("SCALETYPE", currSong.scaleType);
     	}
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -104,6 +107,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	          currSong.melody = (ArrayList<ArrayList<Integer>>) savedInstanceState.getSerializable("MELODY");
 	
 	          currSong.timeSigNum = (Integer) savedInstanceState.getSerializable("TSNUM");
+	          currSong.scaleType = (ScaleType) savedInstanceState.getSerializable("SCALETYPE");
+	          
 	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
 	          updateDisplay();
 	          // Probably need to do a bit of checking if we are currently playing a song. As it is,
@@ -201,6 +206,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		
 		String displayString = "Time Signature: ";
 		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
+		displayString += "\nScale type: " + currSong.scaleType;
 		displayString = displayString + "\n" + currSong.vStructure.toString();
 		displayString = displayString + "\nVerse: " + currSong.verseChords;
 		displayString = displayString + "\nChorus: " + currSong.chorusChords;

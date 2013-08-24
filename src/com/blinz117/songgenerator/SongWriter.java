@@ -14,6 +14,8 @@ public class SongWriter {
 	static final int NUMCHORDS = CHORDPROBS.length;
 	int probSums = 0;
 	
+	static final double[] SCALETYPEPROBS = {10.0, 2.0, 1.0};
+	
 	double[] basePartProbs = {0.6, 0.3, 0.1};
 	
 	Random randGen;
@@ -53,6 +55,8 @@ public class SongWriter {
 		masterpiece.timeSigNum = mTimeSigNumer;
 		masterpiece.timeSigDenom = mTimeSigDenom;
 		
+		masterpiece.scaleType = chooseScaleType();
+		
 		masterpiece.vStructure = generateStructure();
 		masterpiece.verseChords = generateBetterChordProgression();
 		masterpiece.chorusChords = generateChordProgression();
@@ -71,6 +75,12 @@ public class SongWriter {
 	/*
 	 * Generation methods
 	 */
+	public ScaleType chooseScaleType()
+	{
+		int ndx = Utils.pickNdxByProb(SCALETYPEPROBS);
+		return ScaleType.values()[ndx];
+	}
+	
 	public ArrayList<SongPart> generateStructure()
 	{
 		ArrayList<SongPart> structure = new ArrayList<SongPart>();

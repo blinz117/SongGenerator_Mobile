@@ -9,6 +9,8 @@ public class Song
 	int timeSigNum;
 	int timeSigDenom;
 	
+	ScaleType scaleType;
+	
 	ArrayList<SongPart> vStructure;
 	
 	ArrayList<Integer> verseChords;
@@ -22,10 +24,11 @@ public class Song
 	
 	ArrayList<ArrayList<Integer>> melody;
 	
-	public Song(){
-		
+	public Song(){		
 		timeSigNum = 0;
 		timeSigDenom = 0;
+		
+		scaleType = ScaleType.MAJOR;
 		
 		vStructure = null;
 		

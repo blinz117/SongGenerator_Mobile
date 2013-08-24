@@ -44,9 +44,16 @@ public final class R {
     public static final class string {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
+        /**  error strings 
+         */
+        public static final int error_create_MIDI=0x7f060005;
+        public static final int error_read_MIDI=0x7f060006;
+        /**  UI strings 
+         */
         public static final int generate_song=0x7f060002;
         public static final int play_song=0x7f060003;
-        public static final int temp_midi=0x7f060004;
+        public static final int stop_play=0x7f060004;
+        public static final int temp_midi=0x7f060007;
     }
     public static final class style {
         /** 
