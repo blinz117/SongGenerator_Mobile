@@ -1,8 +1,11 @@
 package com.blinz117.songgenerator;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
+import com.blinz117.songgenerator.SongStructure.*;
+
 import com.leff.midi.*;
 
 import android.media.MediaPlayer;
@@ -27,6 +30,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	
 	MediaPlayer mediaPlayer;
 	
+	/*
+	 * State handlers
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,6 +65,53 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		mediaPlayer = new MediaPlayer();
 		mediaPlayer.setOnCompletionListener(this);
 	}
+	
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+    	//Save state on certain changes, such as screen rotation
+    	boolean hasSong = (currSong != null);
+    	savedInstanceState.putBoolean("HASSONG", hasSong);
+    	
+    	if (hasSong)
+    	{
+	    	savedInstanceState.putSerializable("STRUCTURE", currSong.vStructure);
+	    	savedInstanceState.putSerializable("VERSE", currSong.verseChords);
+	    	savedInstanceState.putSerializable("CHORUS", currSong.chorusChords);
+	    	savedInstanceState.putSerializable("BRIDGE", currSong.bridgeChords);
+	    	
+	    	savedInstanceState.putSerializable("MELODY", currSong.melody);
+	    	
+	    	savedInstanceState.putSerializable("TSNUM", currSong.timeSigNum);
+	    	savedInstanceState.putSerializable("TSDENOM", currSong.timeSigDenom);
+    	}
+        super.onSaveInstanceState(savedInstanceState);
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    	//Restore state on certain changes, such as screen rotation
+          super.onRestoreInstanceState(savedInstanceState);
+          boolean hasSong = savedInstanceState.getBoolean("HASSONG");
+          if (hasSong)
+          {
+	          currSong = new Song();
+	          currSong.vStructure = (ArrayList<SongPart>) savedInstanceState.getSerializable("STRUCTURE");
+	          currSong.verseChords = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
+	          currSong.chorusChords = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
+	          currSong.bridgeChords = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
+	          
+	          currSong.melody = (ArrayList<ArrayList<Integer>>) savedInstanceState.getSerializable("MELODY");
+	
+	          currSong.timeSigNum = (Integer) savedInstanceState.getSerializable("TSNUM");
+	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
+	          updateDisplay();
+	          // Probably need to do a bit of checking if we are currently playing a song. As it is,
+	          // I think we lost the media player. Maybe need to restore this somehow.
+	          //createTempMidi();
+	          playButton.setEnabled(true);
+          }
+    }
 
 //	@Override
 //	public boolean onCreateOptionsMenu(Menu menu) {
@@ -70,38 +123,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	View.OnClickListener onSongGenerate = new View.OnClickListener() {
 		public void onClick(View view)
 		{
-			Song currSong = songWriter.writeNewSong();
-			String displayString = "Time Signature: ";
-			displayString += songWriter.getTimeSigNumerator() + "/" + songWriter.getTimeSigDenominator();
-			displayString = displayString + "\n" + currSong.vStructure.toString();
-			displayString = displayString + "\nVerse: " + currSong.verseChords;
-			displayString = displayString + "\nChorus: " + currSong.chorusChords;
-			displayString = displayString + "\nBridge: " + currSong.bridgeChords;
-			displayString += "\nRhythm1: " + currSong.rhythm1;
-			displayString += "\nRhythm2: " + currSong.rhythm2;
-			
-			displayString += "\nTheme: " + currSong.theme;
-			
-			displayString += "\nMelody: " + currSong.melody;
-			
-			songStructureView.setText(displayString);
-			
-			MidiManager midiManager = new MidiManager();
-			MidiFile midiSong = midiManager.generateChordMidi(currSong, songWriter.mTimeSigNumer, songWriter.mTimeSigDenom);
-			
-			File midiOut = new File(getApplicationContext().getFilesDir(), "tempOut.mid");
-			try {
-				midiSong.writeToFile(midiOut);
-			} 
-			catch(Exception e) {
-				Context context = getApplicationContext();
-				CharSequence text = "Oops! Something bad happened trying to create a new MIDI!";
-				int duration = Toast.LENGTH_SHORT;
-
-				Toast toast = Toast.makeText(context, text, duration);
-				toast.show();
-			}
-			
+			currSong = songWriter.writeNewSong();
+			updateDisplay();
+			createTempMidi();
 			playButton.setEnabled(true);
 		}
 	};
@@ -129,13 +153,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 				mediaPlayer.start();
 				
 				//playButton.setEnabled(false);
-				playButton.setText("Stop playing!");
+				playButton.setText(getResources().getString(R.string.stop_play));
 				songGenButton.setEnabled(false);
 			}
 			catch  (Exception e) 
 			{ 
 				Context context = getApplicationContext();
-				CharSequence text = "Oops! Something bad happened trying to find your MIDI! Here's the message: " + e.getMessage();
+				CharSequence text = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
 				int duration = Toast.LENGTH_SHORT;
 
 				Toast toast = Toast.makeText(context, text, duration);
@@ -168,6 +192,49 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		playButton.setText(getResources().getString(R.string.play_song));
 		
 		mp.reset();
+	}
+	
+	public void updateDisplay()
+	{
+		if (currSong == null)
+			return;
+		
+		String displayString = "Time Signature: ";
+		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
+		displayString = displayString + "\n" + currSong.vStructure.toString();
+		displayString = displayString + "\nVerse: " + currSong.verseChords;
+		displayString = displayString + "\nChorus: " + currSong.chorusChords;
+		displayString = displayString + "\nBridge: " + currSong.bridgeChords;
+		
+		/* Don't want to show these for now... 
+		displayString += "\nRhythm1: " + currSong.rhythm1;
+		displayString += "\nRhythm2: " + currSong.rhythm2;
+		
+		displayString += "\nTheme: " + currSong.theme;
+		*/
+		
+		displayString += "\nMelody: " + currSong.melody;
+		
+		songStructureView.setText(displayString);
+	}
+	
+	public void createTempMidi()
+	{
+		MidiManager midiManager = new MidiManager();
+		MidiFile midiSong = midiManager.generateChordMidi(currSong);
+		
+		File midiOut = new File(getApplicationContext().getFilesDir(), "tempOut.mid");
+		try {
+			midiSong.writeToFile(midiOut);
+		} 
+		catch(Exception e) {
+			Context context = getApplicationContext();
+			CharSequence text = getResources().getString(R.string.error_create_MIDI);//"Oops! Something bad happened trying to create a new MIDI file!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		}
 	}
 
 }

@@ -50,23 +50,10 @@ public class SongWriter {
 	{
 		Song masterpiece = new Song();
 		
-		// Generate probabilities
-		// TODO: Probably want to put this into its own method when more stuff is added
-		double[] partProbs = basePartProbs;
-		//int numPartTypes = partProbs.length;
+		masterpiece.timeSigNum = mTimeSigNumer;
+		masterpiece.timeSigDenom = mTimeSigDenom;
 		
-		int iNumParts = randGen.nextInt(2) + 4;
-		
-		for (int iPart = 0; iPart < iNumParts; iPart++)
-		{
-			int songPartNdx = Utils.pickNdxByProb(partProbs);
-			
-			masterpiece.vStructure.add(SongPart.values()[songPartNdx]);//nextPart);
-			partProbs = basePartProbs;
-			partProbs[songPartNdx] = 0.1;
-		}
-		
-		// now generate chord progression for each segment
+		masterpiece.vStructure = generateStructure();
 		masterpiece.verseChords = generateBetterChordProgression();
 		masterpiece.chorusChords = generateChordProgression();
 		masterpiece.bridgeChords = generateChordProgression();
@@ -84,6 +71,24 @@ public class SongWriter {
 	/*
 	 * Generation methods
 	 */
+	public ArrayList<SongPart> generateStructure()
+	{
+		ArrayList<SongPart> structure = new ArrayList<SongPart>();
+		double[] partProbs = basePartProbs;
+		
+		int iNumParts = randGen.nextInt(2) + 4;
+		
+		for (int iPart = 0; iPart < iNumParts; iPart++)
+		{
+			int songPartNdx = Utils.pickNdxByProb(partProbs);
+			
+			structure.add(SongPart.values()[songPartNdx]);
+			partProbs = basePartProbs;
+			partProbs[songPartNdx] = 0.1;
+		}
+		return structure;
+	}
+	
 	public ArrayList<Integer> generateChordProgression()
 	{
 		ArrayList<Integer> chordProg = new ArrayList<Integer>();

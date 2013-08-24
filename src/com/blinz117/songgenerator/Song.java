@@ -6,6 +6,9 @@ import com.blinz117.songgenerator.SongStructure.*;
 
 public class Song
 {
+	int timeSigNum;
+	int timeSigDenom;
+	
 	ArrayList<SongPart> vStructure;
 	
 	ArrayList<Integer> verseChords;
@@ -20,7 +23,11 @@ public class Song
 	ArrayList<ArrayList<Integer>> melody;
 	
 	public Song(){
-		vStructure = new ArrayList<SongPart>();
+		
+		timeSigNum = 0;
+		timeSigDenom = 0;
+		
+		vStructure = null;
 		
 		verseChords = null;
 		chorusChords = null;

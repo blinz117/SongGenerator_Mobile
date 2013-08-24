@@ -15,7 +15,7 @@ public class MidiManager {
 	{
 	}
 	
-	public MidiFile generateTempMidi(Song song, int timeSigNum, int timeSigDenom) {
+	public MidiFile generateTempMidi(Song song) {
 		
 		int eigthNote = 240; // Still need to figure out why this value works... is it the resolution below?
 		
@@ -26,7 +26,7 @@ public class MidiManager {
 		// 2. Add events to the tracks
 		// 2a. Track 0 is typically the tempo map
 		TimeSignature ts = new TimeSignature();
-		ts.setTimeSignature(timeSigNum, timeSigDenom, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
+		ts.setTimeSignature(song.timeSigNum, song.timeSigDenom, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
 		
 		Tempo t = new Tempo();
 		t.setBpm(120);
@@ -81,7 +81,7 @@ public class MidiManager {
 		return midi;
 	}
 	
-	public MidiFile generateChordMidi(Song song, int timeSigNum, int timeSigDenom) {
+	public MidiFile generateChordMidi(Song song) {
 		
 		int qtrNote = 480; // Still need to figure out why this value works... is it the resolution below?
 		
@@ -92,7 +92,7 @@ public class MidiManager {
 		// 2. Add events to the tracks
 		// 2a. Track 0 is typically the tempo map
 		TimeSignature ts = new TimeSignature();
-		ts.setTimeSignature(timeSigNum, timeSigDenom, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
+		ts.setTimeSignature(song.timeSigNum, song.timeSigDenom, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
 		
 		Tempo t = new Tempo();
 		t.setBpm(120);
@@ -112,7 +112,7 @@ public class MidiManager {
 			
 			for (int interval = 0; interval < 3; interval++)
 			{
-				noteTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * timeSigNum, qtrNote * timeSigNum);
+				noteTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * song.timeSigNum, qtrNote * song.timeSigNum);
 			}
 			
 			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
@@ -125,7 +125,7 @@ public class MidiManager {
 			themeNotes = song.melody.get(ndx);
 			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
-				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
+				int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
 				int pitch = basePitch + SongStructure.MAJORSCALEINTERVALS[(root + themeNotes.get(melodyNote)) % 7] + 12;
 				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
 			}
