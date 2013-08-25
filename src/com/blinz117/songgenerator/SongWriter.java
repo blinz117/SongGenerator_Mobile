@@ -57,7 +57,7 @@ public class SongWriter {
 		
 		masterpiece.scaleType = chooseScaleType();
 		
-		masterpiece.vStructure = generateStructure();
+		masterpiece.structure = generateStructure();
 		masterpiece.verseChords = generateBetterChordProgression();
 		masterpiece.chorusChords = generateChordProgression();
 		masterpiece.bridgeChords = generateChordProgression();

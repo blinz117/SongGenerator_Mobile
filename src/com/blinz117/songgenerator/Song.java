@@ -11,7 +11,7 @@ public class Song
 	
 	ScaleType scaleType;
 	
-	ArrayList<SongPart> vStructure;
+	ArrayList<SongPart> structure;
 	
 	ArrayList<Integer> verseChords;
 	ArrayList<Integer> chorusChords;
@@ -30,7 +30,7 @@ public class Song
 		
 		scaleType = ScaleType.MAJOR;
 		
-		vStructure = null;
+		structure = null;
 		
 		verseChords = null;
 		chorusChords = null;

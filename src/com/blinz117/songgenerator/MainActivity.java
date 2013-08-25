@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
-import com.blinz117.songgenerator.SongStructure.ScaleType;
+import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
 import com.blinz117.songgenerator.SongStructure.*;
 
 import com.leff.midi.*;
@@ -12,24 +12,31 @@ import com.leff.midi.*;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.app.Activity;
+import android.os.Environment;
 import android.content.Context;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-public class MainActivity extends Activity implements OnItemSelectedListener, OnCompletionListener{
+import android.support.v4.app.*;
+
+public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogListener{
 
 	Spinner timeSigNumSpin;
 	Spinner timeSigDenomSpin;
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
+	Button saveButton;
 	
 	SongWriter songWriter;
 	Song currSong;
 	
+	MidiFile midiSong;
+	
 	MediaPlayer mediaPlayer;
+	
+	String saveFileName;
 	
 	/*
 	 * State handlers
@@ -60,11 +67,24 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		
 		playButton = (Button)findViewById(R.id.songPlay);
 		playButton.setOnClickListener(onPlaySong);
+		
+		saveButton = (Button)findViewById(R.id.songSave);
+		saveButton.setOnClickListener(new View.OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				showSaveDialog();
+			}
+		});
+		
 		songWriter = new SongWriter();
 		currSong = null;
 		
+		midiSong = null;
+		
 		mediaPlayer = new MediaPlayer();
 		mediaPlayer.setOnCompletionListener(this);
+		
+		saveFileName = "";
 	}
 	
     @Override
@@ -75,7 +95,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
     	
     	if (hasSong)
     	{
-	    	savedInstanceState.putSerializable("STRUCTURE", currSong.vStructure);
+	    	savedInstanceState.putSerializable("STRUCTURE", currSong.structure);
 	    	savedInstanceState.putSerializable("VERSE", currSong.verseChords);
 	    	savedInstanceState.putSerializable("CHORUS", currSong.chorusChords);
 	    	savedInstanceState.putSerializable("BRIDGE", currSong.bridgeChords);
@@ -99,22 +119,24 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
           if (hasSong)
           {
 	          currSong = new Song();
-	          currSong.vStructure = (ArrayList<SongPart>) savedInstanceState.getSerializable("STRUCTURE");
+	          currSong.structure = (ArrayList<SongPart>) savedInstanceState.getSerializable("STRUCTURE");
 	          currSong.verseChords = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
 	          currSong.chorusChords = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
 	          currSong.bridgeChords = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
 	          
 	          currSong.melody = (ArrayList<ArrayList<Integer>>) savedInstanceState.getSerializable("MELODY");
 	
-	          currSong.timeSigNum = (Integer) savedInstanceState.getSerializable("TSNUM");
+	          currSong.timeSigNum = (Integer) savedInstanceState.getSerializable("TSNUM");	          
+	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
+	          
 	          currSong.scaleType = (ScaleType) savedInstanceState.getSerializable("SCALETYPE");
 	          
-	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
 	          updateDisplay();
 	          // Probably need to do a bit of checking if we are currently playing a song. As it is,
 	          // I think we lost the media player. Maybe need to restore this somehow.
 	          //createTempMidi();
 	          playButton.setEnabled(true);
+	          saveButton.setEnabled(true);
           }
     }
 
@@ -132,6 +154,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 			updateDisplay();
 			createTempMidi();
 			playButton.setEnabled(true);
+			saveButton.setEnabled(true);
 		}
 	};
 	
@@ -145,6 +168,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 				
 				songGenButton.setEnabled(true);
 				playButton.setText(getResources().getString(R.string.play_song));
+				saveButton.setEnabled(true);
 				return;
 			}
 			
@@ -159,6 +183,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 				
 				//playButton.setEnabled(false);
 				playButton.setText(getResources().getString(R.string.stop_play));
+				saveButton.setEnabled(false);
 				songGenButton.setEnabled(false);
 			}
 			catch  (Exception e) 
@@ -193,6 +218,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		songGenButton.setEnabled(true);
+		saveButton.setEnabled(true);
 		//playButton.setEnabled(true);
 		playButton.setText(getResources().getString(R.string.play_song));
 		
@@ -207,7 +233,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		String displayString = "Time Signature: ";
 		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
 		displayString += "\nScale type: " + currSong.scaleType;
-		displayString = displayString + "\n" + currSong.vStructure.toString();
+		displayString = displayString + "\n" + currSong.structure.toString();
 		displayString = displayString + "\nVerse: " + currSong.verseChords;
 		displayString = displayString + "\nChorus: " + currSong.chorusChords;
 		displayString = displayString + "\nBridge: " + currSong.bridgeChords;
@@ -224,13 +250,17 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 		songStructureView.setText(displayString);
 	}
 	
-	public void createTempMidi()
+	public void createMidiFile()
 	{
 		MidiManager midiManager = new MidiManager();
-		MidiFile midiSong = midiManager.generateChordMidi(currSong);
-		
-		File midiOut = new File(getApplicationContext().getFilesDir(), "tempOut.mid");
+		midiSong = midiManager.generateChordMidi(currSong);
+	}
+	
+	public void createTempMidi()
+	{
 		try {
+			createMidiFile();
+			File midiOut = new File(getFilesDir(), "tempOut.mid");
 			midiSong.writeToFile(midiOut);
 		} 
 		catch(Exception e) {
@@ -242,5 +272,85 @@ public class MainActivity extends Activity implements OnItemSelectedListener, On
 			toast.show();
 		}
 	}
+	
+	public FileDescriptor retrieveTempMidi()
+	{
+		FileInputStream midiStream;
+		try 
+		{
+			midiStream = openFileInput(getResources().getString(R.string.temp_midi));
+			FileDescriptor fd = midiStream.getFD();
+			return fd;
+
+		}
+		catch  (Exception e) 
+		{ 
+			showError(getResources().getString(R.string.error_read_MIDI));
+			return null;
+		}
+	}
+	
+	public void saveMidi()
+	{
+		// make sure we can write to external storage:
+	    String state = Environment.getExternalStorageState();
+	    if (!Environment.MEDIA_MOUNTED.equals(state))
+	    {
+	    	// couldn't access external storage
+	    	showError("Couldn't access external storage!");
+	        return;
+	    }
+
+	    try {
+		    // it may already exist, but just be safe
+		    createMidiFile();
+		    File parentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+		    if (!parentDir.exists())
+		    	parentDir.mkdirs();
+		    
+		    File saveFile = new File(parentDir, saveFileName + ".mid");
+		    midiSong.writeToFile(saveFile);
+	    }
+	    catch(Exception e) {
+	    	showError(getResources().getString(R.string.error_create_MIDI));
+	    }
+	    
+	}
+	
+	public void showError(String message)
+	{
+		Context context = getApplicationContext();
+		int duration = Toast.LENGTH_SHORT;
+
+		Toast toast = Toast.makeText(context, message, duration);
+		toast.show();
+	}
+	
+	public void showSaveDialog()
+	{
+   
+	    DialogFragment saveDialog = new SaveFileDialogFragment();
+	    saveDialog.show(getSupportFragmentManager(), "saveDialog");
+	    
+	}
+
+	@Override
+	public void onSetFileName(SaveFileDialogFragment dialog){
+		// TODO Auto-generated method stub
+		saveFileName = dialog.fileName;
+		
+	    // user hit cancel or didn't input anything
+	    if (saveFileName.equals(""))
+	    	return;
+	    
+	    saveMidi();
+		
+	}
+	
+	@Override
+	public void onCancelSaveDialog(SaveFileDialogFragment dialog){
+		saveFileName = "";
+	}
+
 
 }

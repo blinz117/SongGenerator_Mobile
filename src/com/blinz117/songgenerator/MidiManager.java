@@ -87,7 +87,8 @@ public class MidiManager {
 		
 		// 1. Create some MidiTracks
 		MidiTrack tempoTrack = new MidiTrack();
-		MidiTrack noteTrack = new MidiTrack();
+		MidiTrack melodyTrack = new MidiTrack();
+		MidiTrack chordTrack = new MidiTrack();
 		
 		// 2. Add events to the tracks
 		// 2a. Track 0 is typically the tempo map
@@ -112,7 +113,7 @@ public class MidiManager {
 			
 			for (int interval = 0; interval < 3; interval++)
 			{
-				noteTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * song.timeSigNum, qtrNote * song.timeSigNum);
+				chordTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * song.timeSigNum, qtrNote * song.timeSigNum);
 			}
 			
 			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
@@ -127,7 +128,7 @@ public class MidiManager {
 			{
 				int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
 				int pitch = basePitch + SongStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7] + 12;
-				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
+				melodyTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
 			}
 
 		}
@@ -138,7 +139,8 @@ public class MidiManager {
 		// 3. Create a MidiFile with the tracks we created
 		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 		tracks.add(tempoTrack);
-		tracks.add(noteTrack);
+		tracks.add(melodyTrack);
+		tracks.add(chordTrack);
 		
 		MidiFile midi = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
 		
