@@ -58,8 +58,8 @@ public class SongWriter {
 		masterpiece.scaleType = chooseScaleType();
 		
 		masterpiece.structure = generateStructure();
-		masterpiece.verseChords = generateBetterChordProgression();
-		masterpiece.chorusChords = generateChordProgression();
+		masterpiece.verseChords = generateNewChordProgression();
+		masterpiece.chorusChords = generateBetterChordProgression();
 		masterpiece.bridgeChords = generateChordProgression();
 		
 		masterpiece.rhythm1 = generateRhythm();
@@ -112,7 +112,7 @@ public class SongWriter {
 		return chordProg;			
 	}
 	
-	// slightly better(?) "algortihm" for generating chord progressions
+	// slightly better(?) "algorithm" for generating chord progressions
 	public ArrayList<Integer> generateBetterChordProgression()
 	{
 		ArrayList<Integer> chordProg = new ArrayList<Integer>();
@@ -128,6 +128,75 @@ public class SongWriter {
 			chordProg.add(currChord + 1);
 		}
 		return chordProg;			
+	}
+	
+	// slightly better(?) "algorithm" for generating chord progressions
+	public ArrayList<Integer> generateNewChordProgression()
+	{
+		//double action = randGen.nextDouble();
+		ArrayList<Integer> chordProg = new ArrayList<Integer>();
+		
+		/*
+		 * TODO
+		 * 
+		 * Generate "turnaround" parts (a, b, a, b1 or a, a, a, a1)
+		 */
+		int numChords = 4;
+		
+		ArrayList<Integer> partA = generateSubProgression(numChords);
+		// always start with root chord
+		partA.set(0, 1);
+		
+		ArrayList<Integer> partB = generateSubProgression(numChords);
+		// always start with root chord
+		partB.set(numChords - 1, 4);
+		
+		ArrayList<Integer> partC;
+		if (randGen.nextDouble() < 0.5)
+			partC = generateSubProgression(numChords);
+		else
+			partC = partA;
+
+		ArrayList<Integer> partD = generateSubProgression(numChords);
+		partD.set(numChords - 1, 5);
+		
+		for (Integer chord: partA)
+			chordProg.add(chord);
+		
+		for (Integer chord: partB)
+			chordProg.add(chord);
+
+		for (Integer chord: partC)
+			chordProg.add(chord);
+		
+		for (Integer chord: partD)
+			chordProg.add(chord);
+//		int currChord = Utils.pickNdxByProb(CHORDPROBS);
+//		chordProg.add(currChord + 1);
+//		
+//		// make it an even number of chords for now
+//		int numChords = 4*(randGen.nextInt(3) + 1);
+//		for (int chord = 1; chord < numChords; chord++)
+//		{
+//			currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
+//			chordProg.add(currChord + 1);
+//		}
+		return chordProg;			
+	}
+	
+	public ArrayList<Integer> generateSubProgression(int numChords)
+	{
+		ArrayList<Integer> subProg = new ArrayList<Integer>();
+		
+		int currChord = Utils.pickNdxByProb(CHORDPROBS);
+		subProg.add(currChord + 1);
+		
+		for (int chord = 1; chord < numChords; chord++)
+		{
+			currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
+			subProg.add(currChord + 1);
+		}
+		return subProg;	
 	}
 	
 	public ArrayList<Integer> generateRhythm()

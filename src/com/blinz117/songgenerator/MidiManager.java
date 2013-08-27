@@ -1,15 +1,29 @@
 package com.blinz117.songgenerator;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
+import com.leff.midi.event.ProgramChange;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
 
 public class MidiManager {
+	
+	public static ProgramChange.MidiProgram[] baseInstruments = {
+		MidiProgram.STRING_ENSEMBLE_2, 
+		MidiProgram.ACOUSTIC_GUITAR_STEEL,
+		MidiProgram.ACOUSTIC_GRAND_PIANO,
+		MidiProgram.VIOLIN,
+		MidiProgram.ROCK_ORGAN,
+		MidiProgram.DISTORTION_GUITAR
+	};
+	
+	Random randGen = new Random();
 
 	public MidiManager()
 	{
@@ -101,6 +115,17 @@ public class MidiManager {
 		tempoTrack.insertEvent(ts);
 		tempoTrack.insertEvent(t);
 		
+		// Doing it this way is pretty bad... the instrument is no longer tracked in the song
+		// As it is, I regenerate the same song before saving, so the song may have different
+		// instruments after saving than it had when it played.
+		MidiProgram chordInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
+		ProgramChange programGuitar = new ProgramChange(0, 0, chordInstrument.programNumber());
+		chordTrack.insertEvent(programGuitar);
+		
+		MidiProgram melodyInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
+		ProgramChange programViolin = new ProgramChange(0, 1, melodyInstrument.programNumber());
+		melodyTrack.insertEvent(programViolin);
+		
 		int channel = 0;
 		int basePitch = 60;
 		int velocity = 100;
@@ -127,7 +152,7 @@ public class MidiManager {
 			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
 				int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + SongStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7] + 12;
+				int pitch = basePitch + SongStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7];// + 12;
 				melodyTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
 			}
 
