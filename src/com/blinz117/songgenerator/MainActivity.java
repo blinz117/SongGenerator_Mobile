@@ -302,13 +302,20 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    }
 
 	    try {
-		    // it may already exist, but just be safe
-		    createMidiFile();
 		    File parentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 		    if (!parentDir.exists())
 		    	parentDir.mkdirs();
 		    
 		    File saveFile = new File(parentDir, saveFileName + ".mid");
+		    if (saveFile.exists())
+		    {
+		    	// TODO: allow user to overwrite file or possible choose a different file name
+		    	showError("Oops! File already exists... should probably let you save it anyway at some point... Oh well!");
+		    	return;
+		    }
+		    
+		    // it may already exist, but just be safe
+		    createMidiFile();
 		    midiSong.writeToFile(saveFile);
 	    }
 	    catch(Exception e) {
@@ -331,7 +338,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
    
 	    DialogFragment saveDialog = new SaveFileDialogFragment();
 	    saveDialog.show(getSupportFragmentManager(), "saveDialog");
-	    
 	}
 
 	@Override
