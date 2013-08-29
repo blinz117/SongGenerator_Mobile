@@ -3,6 +3,7 @@ package com.blinz117.songgenerator;
 import java.util.ArrayList;
 
 import com.blinz117.songgenerator.SongStructure.*;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 
 public class Song
 {
@@ -10,6 +11,10 @@ public class Song
 	int timeSigDenom;
 	
 	ScaleType scaleType;
+	Pitch key;
+	
+	MidiProgram chordInstrument;
+	MidiProgram melodyInstrument;
 	
 	ArrayList<SongPart> structure;
 	
@@ -29,6 +34,10 @@ public class Song
 		timeSigDenom = 0;
 		
 		scaleType = ScaleType.MAJOR;
+		key = Pitch.C;
+		
+		chordInstrument = MidiProgram.ACOUSTIC_GRAND_PIANO;
+		melodyInstrument = MidiProgram.ACOUSTIC_GRAND_PIANO;
 		
 		structure = null;
 		

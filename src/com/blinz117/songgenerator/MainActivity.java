@@ -8,6 +8,7 @@ import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
 import com.blinz117.songgenerator.SongStructure.*;
 
 import com.leff.midi.*;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -106,6 +107,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    	savedInstanceState.putSerializable("TSDENOM", currSong.timeSigDenom);
 	    	
 	    	savedInstanceState.putSerializable("SCALETYPE", currSong.scaleType);
+	    	savedInstanceState.putSerializable("KEY", currSong.key);
+	    	
+	    	savedInstanceState.putSerializable("CHORDINSTRUMENT", currSong.chordInstrument);
+	    	savedInstanceState.putSerializable("MELODYINSTRUMENT", currSong.melodyInstrument);
     	}
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -130,6 +135,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
 	          
 	          currSong.scaleType = (ScaleType) savedInstanceState.getSerializable("SCALETYPE");
+	          currSong.key = (Pitch) savedInstanceState.getSerializable("KEY");
+	          
+	          currSong.chordInstrument = (MidiProgram) savedInstanceState.getSerializable("CHORDINSTRUMENT");
+	          currSong.melodyInstrument = (MidiProgram) savedInstanceState.getSerializable("MELODYINSTRUMENT");
 	          
 	          updateDisplay();
 	          // Probably need to do a bit of checking if we are currently playing a song. As it is,
@@ -202,12 +211,15 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	@Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
 	{
-		Spinner spinner = (Spinner) parent;
+/*		
+ * 		Removing this temporarily. Just randomly generate until I add more customization later
+ * 
+ * 		Spinner spinner = (Spinner) parent;
 		String value = parent.getItemAtPosition(pos).toString();
 		if (spinner.getId() == R.id.timeSigNum)
 			songWriter.setTimeSigNumerator(Integer.parseInt(value));
 		else if (spinner.getId() == R.id.timeSigDenom)
-			songWriter.setTimeSigDenominator(Integer.parseInt(value));
+			songWriter.setTimeSigDenominator(Integer.parseInt(value));*/
     }
 
 	@Override
@@ -232,7 +244,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		String displayString = "Time Signature: ";
 		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
-		displayString += "\nScale type: " + currSong.scaleType;
+		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
+		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
+		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
 		displayString = displayString + "\n" + currSong.structure.toString();
 		displayString = displayString + "\nVerse: " + currSong.verseChords;
 		displayString = displayString + "\nChorus: " + currSong.chorusChords;

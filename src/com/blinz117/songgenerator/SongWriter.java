@@ -4,12 +4,23 @@ import java.util.Random;
 import java.util.ArrayList;
 
 import com.blinz117.songgenerator.SongStructure.*;
+import com.leff.midi.event.ProgramChange;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 
 public class SongWriter {
 
 	/*
 	 * TODO: Should some of these go into the SongStructure class?
 	 */
+	public static ProgramChange.MidiProgram[] baseInstruments = {
+		MidiProgram.STRING_ENSEMBLE_2, 
+		MidiProgram.ACOUSTIC_GUITAR_STEEL,
+		MidiProgram.ACOUSTIC_GRAND_PIANO,
+		MidiProgram.VIOLIN,
+		MidiProgram.ROCK_ORGAN,
+		MidiProgram.DISTORTION_GUITAR
+	};
+	
 	static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
 	static final int NUMCHORDS = CHORDPROBS.length;
 	int probSums = 0;
@@ -52,10 +63,13 @@ public class SongWriter {
 	{
 		Song masterpiece = new Song();
 		
-		masterpiece.timeSigNum = mTimeSigNumer;
-		masterpiece.timeSigDenom = mTimeSigDenom;
+		int numTimeSigNums = SongStructure.TIMESIGNUMVALUES.length;
+		int numTimeSigDenoms = SongStructure.TIMESIGDENOMVALUES.length;
+		mTimeSigNumer = masterpiece.timeSigNum = SongStructure.TIMESIGNUMVALUES[randGen.nextInt(numTimeSigNums)];//mTimeSigNumer;
+		mTimeSigDenom = masterpiece.timeSigDenom = SongStructure.TIMESIGDENOMVALUES[randGen.nextInt(numTimeSigDenoms)];//mTimeSigDenom;
 		
 		masterpiece.scaleType = chooseScaleType();
+		masterpiece.key = SongStructure.PITCHES[randGen.nextInt(SongStructure.NUMPITCHES)];
 		
 		masterpiece.structure = generateStructure();
 		masterpiece.verseChords = generateNewChordProgression();
@@ -68,6 +82,10 @@ public class SongWriter {
 		masterpiece.theme = generateTheme();
 		
 		masterpiece.melody = generateMelody(masterpiece.verseChords);
+		
+		masterpiece.chordInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
+		
+		masterpiece.melodyInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
 		
 		return masterpiece;
 	} // writeNewSong

@@ -4,6 +4,8 @@ public class SongStructure {
 	
 	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR };
 	
+	static final int[] TIMESIGNUMVALUES = {2, 3, 4};
+	static final int[] TIMESIGDENOMVALUES = {4}; // just 4 for now... may expand later
 	// these describe the intervals (in semi-tones) between the notes
 	// in each scale
 	static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
@@ -17,14 +19,74 @@ public class SongStructure {
 	
 	// Define the pitches present in the "Western" system
 	// (forgive my ignorance on naming conventions)
-	public enum Pitch {C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B }
-	Pitch[] PITCHES = Pitch.values();
+	public enum Pitch {C, D_FLAT, D, E_FLAT, E, F, G_FLAT, G, A_FLAT, A, B_FLAT, B;
+		public int getBaseMidiPitch(){
+			return this.ordinal() + 60;
+		}
+		
+		// TODO: Implement MIDI key signature so importing into other software shows correct key signature
+		// cof = Circle of Fifths: used to determine key signature
+		protected int[] cofMajor = {0, -5, 2, -3, 4, -1, -6, 1, -4, 3, -2, 5};
+		
+		public int getMIDIKeyNumMajor()
+		{
+			return cofMajor[this.ordinal()];
+		}
+		
+		public int getMIDIKeyNumMinor()
+		{
+			// TODO: I THINK THIS STILL NEEDS WORK!!!!
+			return getRelativeMajor().getMIDIKeyNumMajor();
+		}
+		
+		public Pitch getRelativeMinor()
+		{
+			return values()[(this.ordinal() + 9) % NUMPITCHES];
+		}
+		
+		public Pitch getRelativeMajor()
+		{
+			return values()[(this.ordinal() + 3) % NUMPITCHES];
+		}
+		
+		@Override
+		public String toString(){
+			switch(this)
+			{
+			case C:
+				return "C";
+			case D_FLAT:
+				return "Db";
+			case D:
+				return "D";
+			case E_FLAT:
+				return "Eb";
+			case E:
+				return "E";
+			case F:
+				return "F";
+			case G_FLAT:
+				return "Gb";
+			case G:
+				return "G";
+			case A_FLAT:
+				return "Ab";
+			case A:
+				return "G";
+			case B_FLAT:
+				return "Bb";
+			case B:
+				return "B";
+			default:
+				return "";
+			}
+		}
+	}
+	static Pitch[] PITCHES = Pitch.values();
 	static final int NUMPITCHES = 12;
 	
 	public enum SongPart { VERSE, CHORUS, BRIDGE };
 	
-	// currently generates a triad based on a major scale. Will eventually extend this
-	// MAKE THIS BETTER!!!!
 	public static int[] generateTriad(int root, ScaleType scaleType)
 	{
 		int[] scaleIntervals = getScaleIntervals(scaleType);

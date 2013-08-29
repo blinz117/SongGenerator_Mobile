@@ -3,25 +3,17 @@ package com.blinz117.songgenerator;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.blinz117.songgenerator.SongStructure.ScaleType;
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.ProgramChange;
-import com.leff.midi.event.ProgramChange.MidiProgram;
+import com.leff.midi.event.meta.KeySignature;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
 
 public class MidiManager {
-	
-	public static ProgramChange.MidiProgram[] baseInstruments = {
-		MidiProgram.STRING_ENSEMBLE_2, 
-		MidiProgram.ACOUSTIC_GUITAR_STEEL,
-		MidiProgram.ACOUSTIC_GRAND_PIANO,
-		MidiProgram.VIOLIN,
-		MidiProgram.ROCK_ORGAN,
-		MidiProgram.DISTORTION_GUITAR
-	};
 	
 	Random randGen = new Random();
 
@@ -115,19 +107,31 @@ public class MidiManager {
 		tempoTrack.insertEvent(ts);
 		tempoTrack.insertEvent(t);
 		
-		// Doing it this way is pretty bad... the instrument is no longer tracked in the song
-		// As it is, I regenerate the same song before saving, so the song may have different
-		// instruments after saving than it had when it played.
-		MidiProgram chordInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
-		ProgramChange programGuitar = new ProgramChange(0, 0, chordInstrument.programNumber());
+		// prepare the key signature
+		int iMajor, iKey;
+		boolean bMajor = song.scaleType == ScaleType.MAJOR;
+		if (bMajor)
+		{
+			iMajor = KeySignature.SCALE_MAJOR;
+			iKey = song.key.getMIDIKeyNumMajor();
+		}
+		else
+		{
+			iMajor = KeySignature.SCALE_MINOR;
+			iKey = song.key.getMIDIKeyNumMinor();
+		}
+		KeySignature k = new KeySignature(0, 0, iKey, iMajor);
+		tempoTrack.insertEvent(k);
+		
+		// Add instruments
+		ProgramChange programGuitar = new ProgramChange(0, 0, song.chordInstrument.programNumber());
 		chordTrack.insertEvent(programGuitar);
 		
-		MidiProgram melodyInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
-		ProgramChange programViolin = new ProgramChange(0, 1, melodyInstrument.programNumber());
+		ProgramChange programViolin = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
 		melodyTrack.insertEvent(programViolin);
 		
 		int channel = 0;
-		int basePitch = 60;
+		int basePitch = song.key.getBaseMidiPitch();
 		int velocity = 100;
 		ArrayList<Integer> chords = song.verseChords;
 		ArrayList<Integer> themeNotes = song.theme;
