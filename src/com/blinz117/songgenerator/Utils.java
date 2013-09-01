@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Utils {
 	
-	static Random randGen = new Random();
+	private static Random randGen = new Random();
 
 	/*
 	 * returns an index into an array based on the probabilities in the array

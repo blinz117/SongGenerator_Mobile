@@ -1,21 +1,21 @@
-package com.blinz117.songgenerator;
+package com.blinz117.songgenerator.songstructure;
 
-public class SongStructure {
+public class MusicStructure {
 	
 	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR };
 	
-	static final int[] TIMESIGNUMVALUES = {2, 3, 4};
-	static final int[] TIMESIGDENOMVALUES = {4}; // just 4 for now... may expand later
+	public static final int[] TIMESIGNUMVALUES = {2, 3, 4};
+	public static final int[] TIMESIGDENOMVALUES = {4}; // just 4 for now... may expand later
 	// these describe the intervals (in semi-tones) between the notes
 	// in each scale
-	static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
-	static final int[] MAJORSCALEINTERVALS = {0, 2, 4, 5, 7, 9, 11};
+	public static final int[] MAJORSCALE = {2, 2, 1, 2, 2, 2, 1};
+	public static final int[] MAJORSCALEINTERVALS = {0, 2, 4, 5, 7, 9, 11};
 	
-	static final int[] NATURALMINORSCALE = {2, 1, 2, 2, 1, 2, 2};
-	static final int[] NATMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 10};
+	public static final int[] NATURALMINORSCALE = {2, 1, 2, 2, 1, 2, 2};
+	public static final int[] NATMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 10};
 	
-	static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
-	static final int[] HARMMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 11};
+	public static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
+	public static final int[] HARMMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 11};
 	
 	// Define the pitches present in the "Western" system
 	// (forgive my ignorance on naming conventions)
@@ -82,8 +82,8 @@ public class SongStructure {
 			}
 		}
 	}
-	static Pitch[] PITCHES = Pitch.values();
-	static final int NUMPITCHES = 12;
+	public static Pitch[] PITCHES = Pitch.values();
+	public static final int NUMPITCHES = 12;
 	
 	public enum SongPart { VERSE, CHORUS, BRIDGE };
 	
@@ -123,7 +123,7 @@ public class SongStructure {
 	 */
 	
 	
-	static final double[][] chordChances = {
+	public static final double[][] chordChances = {
 		{0, 2, 4, 10, 8, 4, 0.5},
 		{4, 0, 2, 5, 6, 2, 0.25},
 		{3, 2, 0, 6, 6, 4, 0.25},

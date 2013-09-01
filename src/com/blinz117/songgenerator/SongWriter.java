@@ -3,14 +3,17 @@ package com.blinz117.songgenerator;
 import java.util.Random;
 import java.util.ArrayList;
 
-import com.blinz117.songgenerator.SongStructure.*;
+import com.blinz117.songgenerator.songstructure.*;
+import com.blinz117.songgenerator.songstructure.MusicStructure;
+import com.blinz117.songgenerator.songstructure.Song;
+import com.blinz117.songgenerator.songstructure.MusicStructure.*;
 import com.leff.midi.event.ProgramChange;
 import com.leff.midi.event.ProgramChange.MidiProgram;
 
 public class SongWriter {
 
 	/*
-	 * TODO: Should some of these go into the SongStructure class?
+	 * TODO: Should some of these go into the MusicStructure class?
 	 */
 	public static ProgramChange.MidiProgram[] baseInstruments = {
 		MidiProgram.STRING_ENSEMBLE_2, 
@@ -21,13 +24,12 @@ public class SongWriter {
 		MidiProgram.DISTORTION_GUITAR
 	};
 	
-	static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
-	static final int NUMCHORDS = CHORDPROBS.length;
-	int probSums = 0;
+	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
+	protected static final int NUMCHORDS = CHORDPROBS.length;
 	
-	static final double[] SCALETYPEPROBS = {10.0, 2.0, 1.0};
+	protected static final double[] SCALETYPEPROBS = {10.0, 2.0, 1.0};
 	
-	double[] basePartProbs = {0.6, 0.3, 0.1};
+	protected double[] basePartProbs = {0.6, 0.3, 0.1};
 	
 	Random randGen;
 	
@@ -37,12 +39,6 @@ public class SongWriter {
 	
 	public SongWriter() 
 	{
-		// initialize a few things
-		for (int ndx = 0; ndx < NUMCHORDS; ndx++)
-		{
-			probSums += CHORDPROBS[ndx];
-		}
-		
 		randGen = new Random();
 		
 		mCurrKey = null;
@@ -63,25 +59,28 @@ public class SongWriter {
 	{
 		Song masterpiece = new Song();
 		
-		int numTimeSigNums = SongStructure.TIMESIGNUMVALUES.length;
-		int numTimeSigDenoms = SongStructure.TIMESIGDENOMVALUES.length;
-		mTimeSigNumer = masterpiece.timeSigNum = SongStructure.TIMESIGNUMVALUES[randGen.nextInt(numTimeSigNums)];//mTimeSigNumer;
-		mTimeSigDenom = masterpiece.timeSigDenom = SongStructure.TIMESIGDENOMVALUES[randGen.nextInt(numTimeSigDenoms)];//mTimeSigDenom;
+		int numTimeSigNums = MusicStructure.TIMESIGNUMVALUES.length;
+		int numTimeSigDenoms = MusicStructure.TIMESIGDENOMVALUES.length;
+		mTimeSigNumer = masterpiece.timeSigNum = MusicStructure.TIMESIGNUMVALUES[randGen.nextInt(numTimeSigNums)];//mTimeSigNumer;
+		mTimeSigDenom = masterpiece.timeSigDenom = MusicStructure.TIMESIGDENOMVALUES[randGen.nextInt(numTimeSigDenoms)];//mTimeSigDenom;
 		
 		masterpiece.scaleType = chooseScaleType();
-		masterpiece.key = SongStructure.PITCHES[randGen.nextInt(SongStructure.NUMPITCHES)];
+		masterpiece.key = MusicStructure.PITCHES[randGen.nextInt(MusicStructure.NUMPITCHES)];
 		
 		masterpiece.structure = generateStructure();
-		masterpiece.verseChords = generateNewChordProgression();
-		masterpiece.chorusChords = generateBetterChordProgression();
-		masterpiece.bridgeChords = generateChordProgression();
+		masterpiece.verseProgression = generateChordProgression();
+		masterpiece.chorusProgression = generateChordProgression();
+		masterpiece.bridgeProgression = generateChordProgression();
 		
 		masterpiece.rhythm1 = generateRhythm();
 		masterpiece.rhythm2 = generateRhythm();
 		
 		masterpiece.theme = generateTheme();
 		
-		masterpiece.melody = generateMelody(masterpiece.verseChords);
+		masterpiece.melody = generateMelody(masterpiece.verseProgression.getChords());
+		//masterpiece.melody.addAll(generateMelody(masterpiece.chorusProgression.getChords()));
+		//masterpiece.melody.addAll(generateMelody(masterpiece.bridgeProgression.getChords()));
+		
 		
 		masterpiece.chordInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
 		
@@ -117,6 +116,10 @@ public class SongWriter {
 		return structure;
 	}
 	
+	/*
+	 * Some old methods for generating Chord progressions.
+	 * Commenting out for now.
+
 	public ArrayList<Integer> generateChordProgression()
 	{
 		ArrayList<Integer> chordProg = new ArrayList<Integer>();
@@ -142,17 +145,18 @@ public class SongWriter {
 		int numChords = 4*(randGen.nextInt(3) + 1);
 		for (int chord = 1; chord < numChords; chord++)
 		{
-			currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
+			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
 			chordProg.add(currChord + 1);
 		}
 		return chordProg;			
 	}
+	*/
 	
 	// slightly better(?) "algorithm" for generating chord progressions
-	public ArrayList<Integer> generateNewChordProgression()
+	public ChordProgression generateChordProgression()
 	{
 		//double action = randGen.nextDouble();
-		ArrayList<Integer> chordProg = new ArrayList<Integer>();
+		ChordProgression chordProg = new ChordProgression();
 		
 		/*
 		 * TODO
@@ -161,34 +165,30 @@ public class SongWriter {
 		 */
 		int numChords = 4;
 		
-		ArrayList<Integer> partA = generateSubProgression(numChords);
+		ChordPattern partA = generateChordPattern(numChords);
 		// always start with root chord
-		partA.set(0, 1);
+		partA.chords.set(0, 1);
 		
-		ArrayList<Integer> partB = generateSubProgression(numChords);
+		ChordPattern partB = generateChordPattern(numChords);
 		// always start with root chord
-		partB.set(numChords - 1, 4);
+		partB.chords.set(numChords - 1, 4);
 		
-		ArrayList<Integer> partC;
+		ChordPattern partC;
 		if (randGen.nextDouble() < 0.5)
-			partC = generateSubProgression(numChords);
+			partC = generateChordPattern(numChords);
 		else
 			partC = partA;
 
-		ArrayList<Integer> partD = generateSubProgression(numChords);
-		partD.set(numChords - 1, 5);
+		ChordPattern partD = generateChordPattern(numChords);
+		partD.chords.set(numChords - 1, 5);
 		
-		for (Integer chord: partA)
-			chordProg.add(chord);
+		chordProg.patterns.add(partA);
 		
-		for (Integer chord: partB)
-			chordProg.add(chord);
+		chordProg.patterns.add(partB);
 
-		for (Integer chord: partC)
-			chordProg.add(chord);
+		chordProg.patterns.add(partC);
 		
-		for (Integer chord: partD)
-			chordProg.add(chord);
+		chordProg.patterns.add(partD);
 //		int currChord = Utils.pickNdxByProb(CHORDPROBS);
 //		chordProg.add(currChord + 1);
 //		
@@ -196,25 +196,25 @@ public class SongWriter {
 //		int numChords = 4*(randGen.nextInt(3) + 1);
 //		for (int chord = 1; chord < numChords; chord++)
 //		{
-//			currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
+//			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
 //			chordProg.add(currChord + 1);
 //		}
 		return chordProg;			
 	}
 	
-	public ArrayList<Integer> generateSubProgression(int numChords)
+	public ChordPattern generateChordPattern(int numChords)
 	{
-		ArrayList<Integer> subProg = new ArrayList<Integer>();
+		ChordPattern pattern = new ChordPattern();
 		
 		int currChord = Utils.pickNdxByProb(CHORDPROBS);
-		subProg.add(currChord + 1);
+		pattern.chords.add(currChord + 1);
 		
 		for (int chord = 1; chord < numChords; chord++)
 		{
-			currChord = Utils.pickNdxByProb(SongStructure.chordChances[currChord]) ;
-			subProg.add(currChord + 1);
+			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
+			pattern.chords.add(currChord + 1);
 		}
-		return subProg;	
+		return pattern;	
 	}
 	
 	public ArrayList<Integer> generateRhythm()

@@ -1,33 +1,33 @@
-package com.blinz117.songgenerator;
+package com.blinz117.songgenerator.songstructure;
 
 import java.util.ArrayList;
 
-import com.blinz117.songgenerator.SongStructure.*;
+import com.blinz117.songgenerator.songstructure.MusicStructure.*;
 import com.leff.midi.event.ProgramChange.MidiProgram;
 
 public class Song
 {
-	int timeSigNum;
-	int timeSigDenom;
+	public int timeSigNum;
+	public int timeSigDenom;
 	
-	ScaleType scaleType;
-	Pitch key;
+	public ScaleType scaleType;
+	public Pitch key;
 	
-	MidiProgram chordInstrument;
-	MidiProgram melodyInstrument;
+	public MidiProgram chordInstrument;
+	public MidiProgram melodyInstrument;
 	
-	ArrayList<SongPart> structure;
+	public ArrayList<SongPart> structure;
 	
-	ArrayList<Integer> verseChords;
-	ArrayList<Integer> chorusChords;
-	ArrayList<Integer> bridgeChords;
+	public ChordProgression verseProgression;
+	public ChordProgression chorusProgression;
+	public ChordProgression bridgeProgression;
 	
-	ArrayList<Integer> rhythm1;
-	ArrayList<Integer> rhythm2;
+	public ArrayList<Integer> rhythm1;
+	public ArrayList<Integer> rhythm2;
 	
-	ArrayList<Integer> theme;
+	public ArrayList<Integer> theme;
 	
-	ArrayList<ArrayList<Integer>> melody;
+	public ArrayList<ArrayList<Integer>> melody;
 	
 	public Song(){		
 		timeSigNum = 0;
@@ -41,9 +41,9 @@ public class Song
 		
 		structure = null;
 		
-		verseChords = null;
-		chorusChords = null;
-		bridgeChords = null;
+		verseProgression = null;
+		chorusProgression = null;
+		bridgeProgression = null;
 		
 		rhythm1 = null;
 		rhythm2 = null;

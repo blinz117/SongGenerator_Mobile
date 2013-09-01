@@ -5,7 +5,10 @@ import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
 import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
-import com.blinz117.songgenerator.SongStructure.*;
+import com.blinz117.songgenerator.songstructure.ChordPattern;
+import com.blinz117.songgenerator.songstructure.ChordProgression;
+import com.blinz117.songgenerator.songstructure.Song;
+import com.blinz117.songgenerator.songstructure.MusicStructure.*;
 
 import com.leff.midi.*;
 import com.leff.midi.event.ProgramChange.MidiProgram;
@@ -97,9 +100,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     	if (hasSong)
     	{
 	    	savedInstanceState.putSerializable("STRUCTURE", currSong.structure);
-	    	savedInstanceState.putSerializable("VERSE", currSong.verseChords);
-	    	savedInstanceState.putSerializable("CHORUS", currSong.chorusChords);
-	    	savedInstanceState.putSerializable("BRIDGE", currSong.bridgeChords);
+	    	savedInstanceState.putSerializable("VERSE", currSong.verseProgression.getChords());
+	    	savedInstanceState.putSerializable("CHORUS", currSong.chorusProgression.getChords());
+	    	savedInstanceState.putSerializable("BRIDGE", currSong.bridgeProgression.getChords());
 	    	
 	    	savedInstanceState.putSerializable("MELODY", currSong.melody);
 	    	
@@ -125,9 +128,46 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
           {
 	          currSong = new Song();
 	          currSong.structure = (ArrayList<SongPart>) savedInstanceState.getSerializable("STRUCTURE");
-	          currSong.verseChords = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
-	          currSong.chorusChords = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
-	          currSong.bridgeChords = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
+	          
+	          // TODO: This is not an ideal way to do this... maybe need to implement the serialize interface for
+	          // a song object and all of the classes it contains
+	          
+	          currSong.verseProgression = new ChordProgression();
+	          ArrayList<Integer> chords = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
+	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
+	          // only works right now because patterns and chord progressions all have the same number of elements
+	          for (int i = 0; i < 4; i++)
+	          {
+	        	  ChordPattern newPattern = new ChordPattern();
+	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
+	        	  currSong.verseProgression.patterns.add(newPattern);
+	          }
+
+	          currSong.chorusProgression = new ChordProgression();
+	          chords = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
+	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
+	          // only works right now because patterns and chord progressions all have the same number of elements
+	          for (int i = 0; i < 4; i++)
+	          {
+	        	  ChordPattern newPattern = new ChordPattern();
+	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
+	        	  currSong.chorusProgression.patterns.add(newPattern);
+	          }
+	          currSong.bridgeProgression = new ChordProgression();
+	          chords = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
+	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
+	          // only works right now because patterns and chord progressions all have the same number of elements
+	          for (int i = 0; i < 4; i++)
+	          {
+	        	  ChordPattern newPattern = new ChordPattern();
+	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
+	        	  currSong.bridgeProgression.patterns.add(newPattern);
+	          }
+	          //currSong.chorusProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
+	         // currSong.bridgeProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
+	          //currSong.verseProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
+	          //currSong.chorusProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
+	         // currSong.bridgeProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
 	          
 	          currSong.melody = (ArrayList<ArrayList<Integer>>) savedInstanceState.getSerializable("MELODY");
 	
@@ -248,9 +288,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
 		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
 		displayString = displayString + "\n" + currSong.structure.toString();
-		displayString = displayString + "\nVerse: " + currSong.verseChords;
-		displayString = displayString + "\nChorus: " + currSong.chorusChords;
-		displayString = displayString + "\nBridge: " + currSong.bridgeChords;
+		displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
+		displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
+		displayString = displayString + "\nBridge: " + currSong.bridgeProgression.getChords();
 		
 		/* Don't want to show these for now... 
 		displayString += "\nRhythm1: " + currSong.rhythm1;
