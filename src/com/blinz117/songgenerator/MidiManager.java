@@ -2,7 +2,6 @@ package com.blinz117.songgenerator;
 
 import java.util.ArrayList;
 
-import com.blinz117.songgenerator.songstructure.ChordPattern;
 import com.blinz117.songgenerator.songstructure.ChordProgression;
 import com.blinz117.songgenerator.songstructure.MusicStructure;
 import com.blinz117.songgenerator.songstructure.Song;
@@ -143,11 +142,44 @@ public class MidiManager {
 			int root = chords.get(ndx);
 			int[] triad = MusicStructure.generateTriad(root, song.scaleType);
 			
-			for (int interval = 0; interval < 3; interval++)
+			for (int interval = 0; interval < triad.length; interval++)
 			{
 				chordTrack.insertNote(channel, basePitch + triad[interval], velocity, chordTick /*ndx * qtrNote * song.timeSigNum*/, qtrNote * song.timeSigNum);
 			}
 			chordTick += qtrNote * song.timeSigNum;
+			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
+			{
+				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
+				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
+				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
+			}*/
+			
+			themeNotes = progression.getMelody().get(ndx); //song.melody.get(ndx);
+			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
+			{
+				//int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
+				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7];// + 12;
+				melodyTrack.insertNote(channel + 1, pitch, velocity + 20, melodyTick/*timeStart*/, qtrNote);
+				melodyTick += qtrNote;
+			}
+
+		}
+	}
+	
+	public void addMelody(MidiTrack melodyTrack, ChordProgression progression)
+	{
+		int channel = 0;
+		int basePitch = song.key.getBaseMidiPitch();
+		int velocity = 100;
+		
+		int melodyTick = 0;
+		
+		ArrayList<Integer> themeNotes = song.theme;
+		ArrayList<Integer> chords = progression.getChords();
+		
+		for (int ndx = 0; ndx < chords.size(); ndx++)
+		{
+			int root = chords.get(ndx);
 			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
 				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);

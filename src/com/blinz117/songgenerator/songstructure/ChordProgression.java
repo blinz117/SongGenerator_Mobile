@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class ChordProgression {
 	
-	public ArrayList<ChordPattern> patterns;
+	public ArrayList<Pattern> patterns;
 	
 	public ChordProgression()
 	{
-		patterns = new ArrayList<ChordPattern>();
+		patterns = new ArrayList<Pattern>();
 	}
 	
 	public ChordProgression(ChordProgression inst)
@@ -19,11 +19,21 @@ public class ChordProgression {
 	public ArrayList<Integer> getChords()
 	{
 		ArrayList<Integer> chords = new ArrayList<Integer>();
-		for (ChordPattern pattern: patterns)
+		for (Pattern pattern: patterns)
 		{
 			chords.addAll(pattern.chords);
 		}
 		return chords;
+	}
+	
+	public ArrayList<ArrayList<Integer>> getMelody()
+	{
+		ArrayList<ArrayList<Integer>> melody = new ArrayList<ArrayList<Integer>>();
+		for (Pattern pattern: patterns)
+		{
+			melody.addAll(pattern.melody);
+		}
+		return melody;
 	}
 
 }

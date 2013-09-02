@@ -77,7 +77,7 @@ public class SongWriter {
 		
 		masterpiece.theme = generateTheme();
 		
-		masterpiece.melody = generateMelody(masterpiece.verseProgression.getChords());
+		masterpiece.melody = masterpiece.verseProgression.getMelody();//generateMelody(masterpiece.verseProgression.getChords());
 		//masterpiece.melody.addAll(generateMelody(masterpiece.chorusProgression.getChords()));
 		//masterpiece.melody.addAll(generateMelody(masterpiece.bridgeProgression.getChords()));
 		
@@ -165,21 +165,21 @@ public class SongWriter {
 		 */
 		int numChords = 4;
 		
-		ChordPattern partA = generateChordPattern(numChords);
+		Pattern partA = generatePattern(numChords);
 		// always start with root chord
 		partA.chords.set(0, 1);
 		
-		ChordPattern partB = generateChordPattern(numChords);
+		Pattern partB = generatePattern(numChords);
 		// always start with root chord
 		partB.chords.set(numChords - 1, 4);
 		
-		ChordPattern partC;
+		Pattern partC;
 		if (randGen.nextDouble() < 0.5)
-			partC = generateChordPattern(numChords);
+			partC = generatePattern(numChords);
 		else
 			partC = partA;
 
-		ChordPattern partD = generateChordPattern(numChords);
+		Pattern partD = generatePattern(numChords);
 		partD.chords.set(numChords - 1, 5);
 		
 		chordProg.patterns.add(partA);
@@ -202,17 +202,19 @@ public class SongWriter {
 		return chordProg;			
 	}
 	
-	public ChordPattern generateChordPattern(int numChords)
+	public Pattern generatePattern(int numChords)
 	{
-		ChordPattern pattern = new ChordPattern();
+		Pattern pattern = new Pattern();
 		
 		int currChord = Utils.pickNdxByProb(CHORDPROBS);
 		pattern.chords.add(currChord + 1);
+		pattern.melody.add(generateTheme());
 		
 		for (int chord = 1; chord < numChords; chord++)
 		{
 			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
 			pattern.chords.add(currChord + 1);
+			pattern.melody.add(generateTheme());
 		}
 		return pattern;	
 	}
@@ -260,6 +262,8 @@ public class SongWriter {
 		return theme;
 	}
 	
+	// TODO: Old way of creating melody... this is now created with the pattern.
+	// Get rid of it once I am sure that is what I want to do.
 	public ArrayList<ArrayList<Integer>> generateMelody(ArrayList<Integer> chords)
 	{
 		ArrayList<ArrayList<Integer>> melody = new ArrayList<ArrayList<Integer>>();

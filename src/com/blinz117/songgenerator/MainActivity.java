@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
 import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
-import com.blinz117.songgenerator.songstructure.ChordPattern;
+import com.blinz117.songgenerator.songstructure.Pattern;
 import com.blinz117.songgenerator.songstructure.ChordProgression;
 import com.blinz117.songgenerator.songstructure.Song;
 import com.blinz117.songgenerator.songstructure.MusicStructure.*;
@@ -138,7 +138,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	          // only works right now because patterns and chord progressions all have the same number of elements
 	          for (int i = 0; i < 4; i++)
 	          {
-	        	  ChordPattern newPattern = new ChordPattern();
+	        	  Pattern newPattern = new Pattern();
 	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
 	        	  currSong.verseProgression.patterns.add(newPattern);
 	          }
@@ -149,7 +149,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	          // only works right now because patterns and chord progressions all have the same number of elements
 	          for (int i = 0; i < 4; i++)
 	          {
-	        	  ChordPattern newPattern = new ChordPattern();
+	        	  Pattern newPattern = new Pattern();
 	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
 	        	  currSong.chorusProgression.patterns.add(newPattern);
 	          }
@@ -159,7 +159,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	          // only works right now because patterns and chord progressions all have the same number of elements
 	          for (int i = 0; i < 4; i++)
 	          {
-	        	  ChordPattern newPattern = new ChordPattern();
+	        	  Pattern newPattern = new Pattern();
 	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
 	        	  currSong.bridgeProgression.patterns.add(newPattern);
 	          }
