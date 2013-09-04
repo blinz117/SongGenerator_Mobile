@@ -91,6 +91,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		saveFileName = "";
 	}
 	
+/*	
+ * TODO: Get this up and running again after making stuff Serializable
+ *  SUPRESS THESE FOR NOW...
+ *  The way I have restructured Songs, chord progressions, patterns, and melodies, this doesn't lend itself
+ *  well to saving/restoring state until I have Song (and its subcomponents) implement the Serializable interface.
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
     	//Save state on certain changes, such as screen rotation
@@ -188,7 +193,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	          saveButton.setEnabled(true);
           }
     }
-
+*/
+	
+	// TODO: Make a settings menu
 //	@Override
 //	public boolean onCreateOptionsMenu(Menu menu) {
 //		// Inflate the menu; this adds items to the action bar if it is present.
@@ -235,7 +242,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				saveButton.setEnabled(false);
 				songGenButton.setEnabled(false);
 			}
-			catch  (Exception e) 
+			catch (Exception e) 
 			{ 
 				Context context = getApplicationContext();
 				CharSequence text = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
@@ -284,6 +291,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		String displayString = "Time Signature: ";
 		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
+		displayString = displayString + "\nTempo: " + currSong.tempo + " BPM";
 		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
 		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
 		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
@@ -396,7 +404,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 
 	@Override
 	public void onSetFileName(SaveFileDialogFragment dialog){
-		// TODO Auto-generated method stub
 		saveFileName = dialog.fileName;
 		
 	    // user hit cancel or didn't input anything

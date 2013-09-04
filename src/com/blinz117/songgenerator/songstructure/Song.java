@@ -9,6 +9,7 @@ public class Song
 {
 	public int timeSigNum;
 	public int timeSigDenom;
+	public int tempo;
 	
 	public ScaleType scaleType;
 	public Pitch key;
@@ -51,20 +52,6 @@ public class Song
 		theme = null;
 		
 		melody = null;
-	}
-	
-	public class Chord
-	{
-		int scaleDegree;
-		// TODO: add an enum for modifier?
-		// Otherwise, I think scale degree will be the only value, so having a class
-		// seems like overkill (unless I can think of something else that makes sense...
-		// perhaps inversion?
-	}
-	
-	public class Rhythm
-	{
-		
 	}
 		
 } //class Song

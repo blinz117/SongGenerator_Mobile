@@ -21,7 +21,10 @@ public class SongWriter {
 		MidiProgram.ACOUSTIC_GRAND_PIANO,
 		MidiProgram.VIOLIN,
 		MidiProgram.ROCK_ORGAN,
-		MidiProgram.DISTORTION_GUITAR
+		MidiProgram.DISTORTION_GUITAR,
+		MidiProgram.BRASS_SECTION,
+		MidiProgram.OVERDRIVEN_GUITAR,
+		MidiProgram.TRUMPET
 	};
 	
 	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
@@ -61,8 +64,10 @@ public class SongWriter {
 		
 		int numTimeSigNums = MusicStructure.TIMESIGNUMVALUES.length;
 		int numTimeSigDenoms = MusicStructure.TIMESIGDENOMVALUES.length;
-		mTimeSigNumer = masterpiece.timeSigNum = MusicStructure.TIMESIGNUMVALUES[randGen.nextInt(numTimeSigNums)];//mTimeSigNumer;
-		mTimeSigDenom = masterpiece.timeSigDenom = MusicStructure.TIMESIGDENOMVALUES[randGen.nextInt(numTimeSigDenoms)];//mTimeSigDenom;
+		mTimeSigNumer = masterpiece.timeSigNum = MusicStructure.TIMESIGNUMVALUES[randGen.nextInt(numTimeSigNums)];
+		mTimeSigDenom = masterpiece.timeSigDenom = MusicStructure.TIMESIGDENOMVALUES[randGen.nextInt(numTimeSigDenoms)];
+		
+		masterpiece.tempo = randGen.nextInt(120) + 80;
 		
 		masterpiece.scaleType = chooseScaleType();
 		masterpiece.key = MusicStructure.PITCHES[randGen.nextInt(MusicStructure.NUMPITCHES)];
@@ -77,7 +82,7 @@ public class SongWriter {
 		
 		masterpiece.theme = generateTheme();
 		
-		masterpiece.melody = masterpiece.verseProgression.getMelody();//generateMelody(masterpiece.verseProgression.getChords());
+		masterpiece.melody = masterpiece.verseProgression.getMelody();
 		//masterpiece.melody.addAll(generateMelody(masterpiece.chorusProgression.getChords()));
 		//masterpiece.melody.addAll(generateMelody(masterpiece.bridgeProgression.getChords()));
 		
@@ -153,16 +158,12 @@ public class SongWriter {
 	*/
 	
 	// slightly better(?) "algorithm" for generating chord progressions
+	// TODO: Keep working on this so it is more robust and
+	// generates more varied songs
 	public ChordProgression generateChordProgression()
 	{
-		//double action = randGen.nextDouble();
 		ChordProgression chordProg = new ChordProgression();
 		
-		/*
-		 * TODO
-		 * 
-		 * Generate "turnaround" parts (a, b, a, b1 or a, a, a, a1)
-		 */
 		int numChords = 4;
 		
 		Pattern partA = generatePattern(numChords);
@@ -170,7 +171,7 @@ public class SongWriter {
 		partA.chords.set(0, 1);
 		
 		Pattern partB = generatePattern(numChords);
-		// always start with root chord
+		// end second part on 4-chord
 		partB.chords.set(numChords - 1, 4);
 		
 		Pattern partC;
@@ -180,6 +181,8 @@ public class SongWriter {
 			partC = partA;
 
 		Pattern partD = generatePattern(numChords);
+		// end last part on 5-chord. Next part will start with 1, so
+		// there will be some resolution
 		partD.chords.set(numChords - 1, 5);
 		
 		chordProg.patterns.add(partA);
@@ -189,16 +192,7 @@ public class SongWriter {
 		chordProg.patterns.add(partC);
 		
 		chordProg.patterns.add(partD);
-//		int currChord = Utils.pickNdxByProb(CHORDPROBS);
-//		chordProg.add(currChord + 1);
-//		
-//		// make it an even number of chords for now
-//		int numChords = 4*(randGen.nextInt(3) + 1);
-//		for (int chord = 1; chord < numChords; chord++)
-//		{
-//			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
-//			chordProg.add(currChord + 1);
-//		}
+
 		return chordProg;			
 	}
 	
@@ -253,7 +247,7 @@ public class SongWriter {
 	{
 		ArrayList<Integer> theme = new ArrayList<Integer>();
 		
-		double[] probs = {5, 1, 5, 1, 5, 1, 0};
+		double[] probs = {5, 1, 5, 2, 5, 1, 0.025};
 		for (int note = 0; note < mTimeSigNumer; note++)
 		{
 			theme.add(Utils.pickNdxByProb(probs) + 1);
@@ -264,14 +258,14 @@ public class SongWriter {
 	
 	// TODO: Old way of creating melody... this is now created with the pattern.
 	// Get rid of it once I am sure that is what I want to do.
-	public ArrayList<ArrayList<Integer>> generateMelody(ArrayList<Integer> chords)
-	{
-		ArrayList<ArrayList<Integer>> melody = new ArrayList<ArrayList<Integer>>();
-		for (int chord = 0; chord < chords.size(); chord++)
-		{
-			melody.add(generateTheme());
-		}
-		return melody;
-	}
+//	public ArrayList<ArrayList<Integer>> generateMelody(ArrayList<Integer> chords)
+//	{
+//		ArrayList<ArrayList<Integer>> melody = new ArrayList<ArrayList<Integer>>();
+//		for (int chord = 0; chord < chords.size(); chord++)
+//		{
+//			melody.add(generateTheme());
+//		}
+//		return melody;
+//	}
 	
 } //class SongWriter

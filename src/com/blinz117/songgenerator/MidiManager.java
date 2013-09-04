@@ -28,7 +28,6 @@ public class MidiManager {
 	
 	public MidiFile generateChordMidi(Song newSong) {
 		
-		//int qtrNote = 480; // Still need to figure out why this value works... is it the resolution below?
 		if (newSong == null)
 		{
 			return null;
@@ -36,7 +35,6 @@ public class MidiManager {
 		
 		song = newSong;
 		
-		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 		// 1. Create some MidiTracks
 		MidiTrack tempoTrack = new MidiTrack();
 		MidiTrack melodyTrack = new MidiTrack();
@@ -48,7 +46,7 @@ public class MidiManager {
 		ts.setTimeSignature(song.timeSigNum, song.timeSigDenom, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
 		
 		Tempo t = new Tempo();
-		t.setBpm(120);
+		t.setBpm(song.tempo);
 		
 		tempoTrack.insertEvent(ts);
 		tempoTrack.insertEvent(t);
@@ -76,46 +74,15 @@ public class MidiManager {
 		ProgramChange programViolin = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
 		melodyTrack.insertEvent(programViolin);
 		
-		//TODO add chord progressions here:
 		addChordProgression(melodyTrack, chordTrack, song.verseProgression);
-		/*int channel = 0;
-		int basePitch = song.key.getBaseMidiPitch();
-		int velocity = 100;
-		// TODO: BAD!!!! This is very dependent on only generating verse stuff. FIX IT!!!!
-		ArrayList<Integer> chords = song.verseProgression;
-		ArrayList<Integer> themeNotes = song.theme;
-		for (int ndx = 0; ndx < chords.size(); ndx++)
-		{
-			int root = chords.get(ndx);
-			int[] triad = MusicStructure.generateTriad(root, song.scaleType);
-			
-			for (int interval = 0; interval < 3; interval++)
-			{
-				chordTrack.insertNote(channel, basePitch + triad[interval], velocity, ndx * qtrNote * song.timeSigNum, qtrNote * song.timeSigNum);
-			}
-			
-			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
-			{
-				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
-				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
-			}
-			
-			themeNotes = song.melody.get(ndx);
-			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
-			{
-				int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7];// + 12;
-				melodyTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
-			}
-
-		}*/
+//		addChordProgression(melodyTrack, chordTrack, song.chorusProgression);
+//		addChordProgression(melodyTrack, chordTrack, song.bridgeProgression);
 		
 		// It's best not to manually insert EndOfTrack events; MidiTrack will
 		// call closeTrack() on itself before writing itself to a file
 		
 		// 3. Create a MidiFile with the tracks we created
-		//ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
+		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 		tracks.add(tempoTrack);
 		tracks.add(melodyTrack);
 		tracks.add(chordTrack);
@@ -125,6 +92,7 @@ public class MidiManager {
 		return midi;
 	}
 	
+	// TODO: Maybe clean up parameters list... break out into separate functions for chords and melody
 	public void addChordProgression(MidiTrack melodyTrack, MidiTrack chordTrack, ChordProgression progression)
 	{
 		int channel = 0;
@@ -144,7 +112,7 @@ public class MidiManager {
 			
 			for (int interval = 0; interval < triad.length; interval++)
 			{
-				chordTrack.insertNote(channel, basePitch + triad[interval], velocity, chordTick /*ndx * qtrNote * song.timeSigNum*/, qtrNote * song.timeSigNum);
+				chordTrack.insertNote(channel, basePitch + triad[interval] - 12, velocity, chordTick /*ndx * qtrNote * song.timeSigNum*/, qtrNote * song.timeSigNum);
 			}
 			chordTick += qtrNote * song.timeSigNum;
 			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
@@ -155,39 +123,6 @@ public class MidiManager {
 			}*/
 			
 			themeNotes = progression.getMelody().get(ndx); //song.melody.get(ndx);
-			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
-			{
-				//int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + themeNotes.get(melodyNote)) % 7];// + 12;
-				melodyTrack.insertNote(channel + 1, pitch, velocity + 20, melodyTick/*timeStart*/, qtrNote);
-				melodyTick += qtrNote;
-			}
-
-		}
-	}
-	
-	public void addMelody(MidiTrack melodyTrack, ChordProgression progression)
-	{
-		int channel = 0;
-		int basePitch = song.key.getBaseMidiPitch();
-		int velocity = 100;
-		
-		int melodyTick = 0;
-		
-		ArrayList<Integer> themeNotes = song.theme;
-		ArrayList<Integer> chords = progression.getChords();
-		
-		for (int ndx = 0; ndx < chords.size(); ndx++)
-		{
-			int root = chords.get(ndx);
-			/*for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
-			{
-				int timeStart = (ndx * qtrNote * timeSigNum) + (qtrNote * melodyNote);
-				int pitch = basePitch + root + themeNotes.get(melodyNote) + 12;
-				noteTrack.insertNote(channel + 1, pitch, velocity + 20, timeStart, qtrNote);
-			}*/
-			
-			themeNotes = song.melody.get(ndx);
 			for (int melodyNote = 0; melodyNote < themeNotes.size(); melodyNote++)
 			{
 				//int timeStart = (ndx * qtrNote * song.timeSigNum) + (qtrNote * melodyNote);
