@@ -22,4 +22,10 @@ public class Note {
 		this.pitch = pitch;
 		this.numBeats = numBeats;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return pitch + "x" + numBeats;
+	}
 }

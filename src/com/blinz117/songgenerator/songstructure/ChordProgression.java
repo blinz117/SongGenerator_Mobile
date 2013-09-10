@@ -35,5 +35,22 @@ public class ChordProgression {
 		}
 		return melody;
 	}
+	
+	public ArrayList<ArrayList<Note>> getNotes()
+	{
+		ArrayList<ArrayList<Note>> notes = new ArrayList<ArrayList<Note>>();
+		for (Pattern pattern: patterns)
+		{
+			notes.addAll(pattern.notes);
+		}
+		return notes;
+	}
+	
+	public ChordProgression plus(ChordProgression addend)
+	{
+		ChordProgression result = new ChordProgression(this);
+		result.patterns.addAll(addend.patterns);
+		return result;
+	}
 
 }

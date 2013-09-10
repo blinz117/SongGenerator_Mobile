@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.blinz117.songgenerator.songstructure.ChordProgression;
 import com.blinz117.songgenerator.songstructure.MusicStructure;
+import com.blinz117.songgenerator.songstructure.Note;
 import com.blinz117.songgenerator.songstructure.Song;
 import com.blinz117.songgenerator.songstructure.MusicStructure.ScaleType;
 import com.leff.midi.MidiFile;
@@ -74,7 +75,7 @@ public class MidiManager {
 		ProgramChange programViolin = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
 		melodyTrack.insertEvent(programViolin);
 		
-		addChordProgression(melodyTrack, chordTrack, song.verseProgression);
+		addChordProgressionV2(melodyTrack, chordTrack, song.verseProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.chorusProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.bridgeProgression);
 		
@@ -132,6 +133,50 @@ public class MidiManager {
 			}
 
 		}
+	}
+	
+	// TODO: Maybe clean up parameters list... break out into separate functions for chords and melody
+	public void addChordProgressionV2(MidiTrack melodyTrack, MidiTrack chordTrack, ChordProgression progression)
+	{
+		int channel = 0;
+		int basePitch = song.key.getBaseMidiPitch();
+		int velocity = 100;
+		
+		int chordTick = 0;
+		int melodyTick = 0;
+		
+		//ArrayList<ArrayList<Note>> melodyNotes = progression.getNotes();
+		ArrayList<Integer> chords = progression.getChords();
+		
+		for (int ndx = 0; ndx < chords.size(); ndx++)
+		{
+			int root = chords.get(ndx);
+			int[] triad = MusicStructure.generateTriad(root, song.scaleType);
+			
+			for (int interval = 0; interval < triad.length; interval++)
+			{
+				chordTrack.insertNote(channel, basePitch + triad[interval] - 12, velocity, chordTick /*ndx * qtrNote * song.timeSigNum*/, qtrNote * song.timeSigNum);
+			}
+			chordTick += qtrNote * song.timeSigNum;
+			
+			ArrayList<Note> melodyNotes = progression.getNotes().get(ndx); //song.melody.get(ndx);
+			for (Note note: melodyNotes)
+			{
+				int noteVelocity = velocity + 20;
+				int numHalfBeats = note.numBeats;
+				if (note.numBeats < 0 || note.pitch < 0)
+				{
+					noteVelocity = 0;
+					numHalfBeats *= -1;
+				}
+				// numBeats is actually in halfBeats
+				int duration = numHalfBeats * qtrNote / 2;
+				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + note.pitch) % 7];// + 12;
+				melodyTrack.insertNote(channel + 1, pitch, noteVelocity, melodyTick, duration);
+				melodyTick += duration;
+			}
+
+		}		
 	}
 	
 	/*	public MidiFile generateTempMidi(Song song) {

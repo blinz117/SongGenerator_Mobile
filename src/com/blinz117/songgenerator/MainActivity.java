@@ -307,7 +307,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		displayString += "\nTheme: " + currSong.theme;
 		*/
 		
-		displayString += "\nMelody: " + currSong.melody;
+		//displayString += "\nMelody: " + currSong.melody;
+		
+		displayString += "\nNotes: " + currSong.verseProgression.getNotes();//.melody;
 		
 		songStructureView.setText(displayString);
 	}

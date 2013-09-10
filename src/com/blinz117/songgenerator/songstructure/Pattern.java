@@ -9,27 +9,35 @@ public class Pattern {
 	
 	public ArrayList<Integer> chords;
 	public ArrayList<ArrayList<Integer>> melody;
+	public ArrayList<ArrayList<Note>> notes;
 	
 	public Pattern()
 	{
 		chords = new ArrayList<Integer>();
 		melody = new ArrayList<ArrayList<Integer>>();
+		notes = new ArrayList<ArrayList<Note>>();
 	}
 	
 	public Pattern(Pattern inst)
 	{
 		chords = inst.chords;
 		melody = inst.melody;
+		notes = inst.notes;
 	}
 	
-	public ArrayList<Integer> getChords()
-	{
-		return chords;
-	}
+	public ArrayList<Integer> getChords() {return chords;}
 	
-	public ArrayList<ArrayList<Integer>> getMelody()
+	public ArrayList<ArrayList<Integer>> getMelody() { return melody; }
+	
+	public ArrayList<ArrayList<Note>> getNotes() { return notes; }
+	
+	public Pattern plus(Pattern addend)
 	{
-		return melody;
+		Pattern result = new Pattern(this);
+		result.chords.addAll(addend.chords);
+		result.melody.addAll(addend.melody);
+		result.notes.addAll(addend.notes);
+		return result;
 	}
 
 }

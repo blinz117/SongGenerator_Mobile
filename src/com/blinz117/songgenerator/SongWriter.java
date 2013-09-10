@@ -24,7 +24,8 @@ public class SongWriter {
 		MidiProgram.DISTORTION_GUITAR,
 		MidiProgram.BRASS_SECTION,
 		MidiProgram.OVERDRIVEN_GUITAR,
-		MidiProgram.TRUMPET
+		MidiProgram.TRUMPET,
+		MidiProgram.CLARINET
 	};
 	
 	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
@@ -33,6 +34,8 @@ public class SongWriter {
 	protected static final double[] SCALETYPEPROBS = {10.0, 2.0, 1.0};
 	
 	protected double[] basePartProbs = {0.6, 0.3, 0.1};
+	
+	protected double[] pitchProbs = {5, 1, 5, 2, 5, 1, 0.025};
 	
 	Random randGen;
 	
@@ -166,31 +169,41 @@ public class SongWriter {
 		
 		int numChords = 4;
 		
-		Pattern partA = generatePattern(numChords);
+		Pattern partA, partB, partC, partD;
+		
+		partA = generatePattern(numChords);
 		// always start with root chord
 		partA.chords.set(0, 1);
 		
-		Pattern partB = generatePattern(numChords);
-		// end second part on 4-chord
-		partB.chords.set(numChords - 1, 4);
-		
-		Pattern partC;
+		if (randGen.nextDouble() < 0.2)
+			partB = partA;
+		else
+			partB = generatePattern(numChords);
+		if (randGen.nextDouble() < 0.8)
+			// end second part on 4-chord
+			partB.chords.set(numChords - 1, 4);
+
 		if (randGen.nextDouble() < 0.5)
 			partC = generatePattern(numChords);
 		else
 			partC = partA;
 
-		Pattern partD = generatePattern(numChords);
+		if (randGen.nextDouble() < 0.3)
+		{
+			partD = partB;
+			if (randGen.nextDouble() < 0.65)
+				// add a different melody at the end to make it more interesting
+				partD.notes.set(partD.notes.size() - 1, generateNotes());
+		}
+		else
+			partD = generatePattern(numChords);
 		// end last part on 5-chord. Next part will start with 1, so
 		// there will be some resolution
 		partD.chords.set(numChords - 1, 5);
 		
-		chordProg.patterns.add(partA);
-		
+		chordProg.patterns.add(partA);	
 		chordProg.patterns.add(partB);
-
 		chordProg.patterns.add(partC);
-		
 		chordProg.patterns.add(partD);
 
 		return chordProg;			
@@ -203,12 +216,14 @@ public class SongWriter {
 		int currChord = Utils.pickNdxByProb(CHORDPROBS);
 		pattern.chords.add(currChord + 1);
 		pattern.melody.add(generateTheme());
+		pattern.notes.add(generateNotes());
 		
 		for (int chord = 1; chord < numChords; chord++)
 		{
 			currChord = Utils.pickNdxByProb(MusicStructure.chordChances[currChord]) ;
 			pattern.chords.add(currChord + 1);
 			pattern.melody.add(generateTheme());
+			pattern.notes.add(generateNotes());
 		}
 		return pattern;	
 	}
@@ -221,11 +236,19 @@ public class SongWriter {
 		int note = 0;
 		while (note < numHalfBeats)
 		{
-			// generate a crappy probability spread
+			// generate even numbered notes with weird distribution
 			double[] probs = new double[numHalfBeats - note];
 			for (int prob = 0; prob < probs.length; prob++)
 			{
-				probs[prob] = (double)(probs.length - prob);
+				if (prob == 0 || (prob + 1) % 2 == 0 )
+					probs[prob] = (double)(probs.length - prob);
+				else 
+					probs[prob] = 0;
+				
+				if (note % 4 == 0)
+				{
+					probs[0] = probs[0]/5;
+				}
 			}
 			int numBeats = Utils.pickNdxByProb(probs) + 1;
 			if (numBeats < 0)
@@ -235,7 +258,7 @@ public class SongWriter {
 			
 			// small chance to be negative (a rest)
 			double restChance = randGen.nextDouble();
-			if (restChance < 0.2)
+			if (restChance < 0.05)
 				numBeats *= -1;
 			
 			rhythm.add(numBeats);
@@ -247,13 +270,49 @@ public class SongWriter {
 	{
 		ArrayList<Integer> theme = new ArrayList<Integer>();
 		
-		double[] probs = {5, 1, 5, 2, 5, 1, 0.025};
 		for (int note = 0; note < mTimeSigNumer; note++)
 		{
-			theme.add(Utils.pickNdxByProb(probs) + 1);
+			theme.add(Utils.pickNdxByProb(pitchProbs) + 1);
 		}
 				
 		return theme;
+	}
+	
+	public ArrayList<Note> generateNotes()
+	{
+		ArrayList<Note> notes = new ArrayList<Note>();
+		
+		ArrayList<Integer> rhythm = generateRhythm();
+		for (Integer item: rhythm)
+		{
+			int pitch;
+			// check if it is a rest
+			if (item < 0)
+				pitch = -1;
+			else
+				pitch = Utils.pickNdxByProb(pitchProbs) + 1;
+			
+			notes.add(new Note(pitch, item));
+		}
+		return notes;
+	}
+	
+	public ArrayList<Note> generateNotes(ArrayList<Integer> rhythm)
+	{
+		ArrayList<Note> notes = new ArrayList<Note>();
+		
+		for (Integer item: rhythm)
+		{
+			int pitch;
+			// check if it is a rest
+			if (item < 0)
+				pitch = -1;
+			else
+				pitch = Utils.pickNdxByProb(pitchProbs) + 1;
+			
+			notes.add(new Note(pitch, item));
+		}
+		return notes;
 	}
 	
 	// TODO: Old way of creating melody... this is now created with the pattern.
