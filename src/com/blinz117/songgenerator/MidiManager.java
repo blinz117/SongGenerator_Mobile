@@ -69,11 +69,11 @@ public class MidiManager {
 		tempoTrack.insertEvent(k);
 		
 		// Add instruments
-		ProgramChange programGuitar = new ProgramChange(0, 0, song.chordInstrument.programNumber());
-		chordTrack.insertEvent(programGuitar);
+		ProgramChange chordInstrumentSelect = new ProgramChange(0, 0, song.chordInstrument.programNumber());
+		chordTrack.insertEvent(chordInstrumentSelect);
 		
-		ProgramChange programViolin = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
-		melodyTrack.insertEvent(programViolin);
+		ProgramChange melodyInstrumentSelect = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
+		melodyTrack.insertEvent(melodyInstrumentSelect);
 		
 		addChordProgressionV2(melodyTrack, chordTrack, song.verseProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.chorusProgression);

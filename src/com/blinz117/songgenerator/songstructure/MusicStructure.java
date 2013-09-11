@@ -2,7 +2,7 @@ package com.blinz117.songgenerator.songstructure;
 
 public class MusicStructure {
 	
-	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR };
+	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR, MIXOLYDIAN, DORIAN };
 	
 	public static final int[] TIMESIGNUMVALUES = {2, 3, 4};
 	public static final int[] TIMESIGDENOMVALUES = {4}; // just 4 for now... may expand later
@@ -16,6 +16,12 @@ public class MusicStructure {
 	
 	public static final int[] HARMONICMINORSCALE = {2, 1, 2, 2, 1, 3, 1};
 	public static final int[] HARMMINORSCALEINTERVALS = {0, 2, 3, 5, 7, 8, 11};
+	
+	public static final int[] MIXOLYDIANSCALE = {2, 2, 1, 2, 2, 1, 2};
+	public static final int[] MIXOLYDIANSCALEINTERVALS = {0, 2, 4, 5, 7, 9, 10};
+	
+	public static final int[] DORIANSCALE = {2, 1, 2, 2, 2, 1, 2};
+	public static final int[] DORIANSCALEINTERVALS = {0, 2, 3, 5, 7, 9, 10};
 	
 	// Define the pitches present in the "Western" system
 	// (forgive my ignorance on naming conventions)
@@ -83,7 +89,7 @@ public class MusicStructure {
 		}
 	}
 	public static Pitch[] PITCHES = Pitch.values();
-	public static final int NUMPITCHES = 12;
+	public static final int NUMPITCHES = 12, OCTAVE = NUMPITCHES;
 	
 	public enum SongPart { VERSE, CHORUS, BRIDGE };
 	
@@ -108,6 +114,10 @@ public class MusicStructure {
 			return NATMINORSCALEINTERVALS;
 		case HARMONICMINOR:
 			return HARMMINORSCALEINTERVALS;
+		case MIXOLYDIAN:
+			return MIXOLYDIANSCALEINTERVALS;
+		case DORIAN:
+			return DORIANSCALEINTERVALS;
 		default:
 			return null;
 		}
@@ -132,5 +142,23 @@ public class MusicStructure {
 		{3, 2, 5, 5, 5, 0, 0.5},
 		{10, 1, 1, 3, 4, 1, 0}
 	};
+	
+	/*
+	 * Translates degree, which is the interval from the root of the chord, 
+	 * represented by chordRoot, to the interval relative to the scale tonic
+	 */
+	public int chordToScaleInterval(int chordRoot, int degree)
+	{
+		return (chordRoot + degree) % 7;
+	}
+	
+	/*
+	 * Translates degree, which is the interval from the tonic of the scale 
+	 *  to the interval relative to the chord root, represented by chordRoot
+	 */
+	public int scaleToChordInterval(int chordRoot, int degree)
+	{
+		return (degree - chordRoot) & 7;
+	}
 
 }

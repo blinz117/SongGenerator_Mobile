@@ -31,7 +31,7 @@ public class SongWriter {
 	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
 	protected static final int NUMCHORDS = CHORDPROBS.length;
 	
-	protected static final double[] SCALETYPEPROBS = {10.0, 2.0, 1.0};
+	protected static final double[] SCALETYPEPROBS = {15.0, 4.0, 3.0, 1.0, 2.0};
 	
 	protected double[] basePartProbs = {0.6, 0.3, 0.1};
 	

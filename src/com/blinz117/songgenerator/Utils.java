@@ -43,4 +43,26 @@ public class Utils {
 		
 	}//pickNdxByProb
 	
+	/*
+	 * returns the sum of the values in vals starting with the value at the index of startNdx and increasing 
+	 * until (but not including) the value at endNdx If endNdx > startNdx, the iterator will loop to the beginning of vals.
+	 * Throws IndexOutOfBoundsException if startNdx or endNdx is not within the bounds of vals
+	 */
+	public static int sumSubArray(int[] vals, int startNdx, int endNdx) throws IndexOutOfBoundsException
+	{
+		int sum = 0;
+		
+		if (startNdx < 0 || startNdx > vals.length || endNdx < 0 || endNdx > vals.length)
+			throw new IndexOutOfBoundsException();
+		
+		int currNdx = startNdx;
+		while (currNdx != endNdx)
+		{
+			sum += vals[currNdx];
+			currNdx = (currNdx + 1) % vals.length;
+		}
+		
+		return sum;
+	}
+	
 }
