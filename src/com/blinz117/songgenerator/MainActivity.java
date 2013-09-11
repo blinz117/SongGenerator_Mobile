@@ -13,6 +13,8 @@ import com.blinz117.songgenerator.songstructure.MusicStructure.*;
 import com.leff.midi.*;
 import com.leff.midi.event.ProgramChange.MidiProgram;
 
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
@@ -38,6 +40,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	MidiFile midiSong;
 	
+	AudioManager am;
 	MediaPlayer mediaPlayer;
 	
 	String saveFileName;
@@ -89,6 +92,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		mediaPlayer.setOnCompletionListener(this);
 		
 		saveFileName = "";
+		
+		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 	}
 	
 /*	
@@ -220,11 +225,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			if (mediaPlayer.isPlaying())
 			{
 				mediaPlayer.stop();
-				mediaPlayer.reset();
-				
-				songGenButton.setEnabled(true);
-				playButton.setText(getResources().getString(R.string.play_song));
-				saveButton.setEnabled(true);
+				onCompletion(mediaPlayer);
 				return;
 			}
 			
@@ -235,9 +236,24 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				FileDescriptor fd = midiStream.getFD();
 				mediaPlayer.setDataSource( fd );
 				mediaPlayer.prepare();
+				
+				// now that MediaPlayer is ready, request audio focus
+				// Request audio focus for playback
+				int result = am.requestAudioFocus(afChangeListener,
+				                                 // Use the music stream.
+				                                 AudioManager.STREAM_MUSIC,
+				                                 // Request permanent focus.
+				                                 AudioManager.AUDIOFOCUS_GAIN);
+				   
+				if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+				{
+					showError("Could not gain audio focus!");
+					return;
+				}
+				
+				
 				mediaPlayer.start();
 				
-				//playButton.setEnabled(false);
 				playButton.setText(getResources().getString(R.string.stop_play));
 				saveButton.setEnabled(false);
 				songGenButton.setEnabled(false);
@@ -253,6 +269,24 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			}
 			
 		}
+	};
+	
+	OnAudioFocusChangeListener afChangeListener = new OnAudioFocusChangeListener() {
+	    public void onAudioFocusChange(int focusChange) {
+	        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
+	        {
+	            mediaPlayer.pause();
+	        } 
+	        else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) 
+	        {
+	            mediaPlayer.start();
+	        } 
+	        else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) 
+	        {
+	        	mediaPlayer.stop();
+	        	onCompletion(mediaPlayer);
+	        }
+	    }
 	};
 
 	@Override
@@ -276,6 +310,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
+		// Clean up when mediaPlayer stops/is stopped
+		
+		// Abandon audio focus   
+		am.abandonAudioFocus(afChangeListener);
+		
 		songGenButton.setEnabled(true);
 		saveButton.setEnabled(true);
 		//playButton.setEnabled(true);
