@@ -251,7 +251,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 					return;
 				}
 				
-				
 				mediaPlayer.start();
 				
 				playButton.setText(getResources().getString(R.string.stop_play));
@@ -323,6 +322,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		mp.reset();
 	}
 	
+	/*
+	 * Display/UI handling
+	 */
 	public void updateDisplay()
 	{
 		if (currSong == null)
@@ -353,6 +355,18 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		songStructureView.setText(displayString);
 	}
 	
+	public void showError(String message)
+	{
+		Context context = getApplicationContext();
+		int duration = Toast.LENGTH_SHORT;
+
+		Toast toast = Toast.makeText(context, message, duration);
+		toast.show();
+	}
+	
+	/*
+	 * Midi file handling
+	 */
 	public void createMidiFile()
 	{
 		MidiManager midiManager = new MidiManager();
@@ -427,15 +441,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    
 	}
 	
-	public void showError(String message)
-	{
-		Context context = getApplicationContext();
-		int duration = Toast.LENGTH_SHORT;
-
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
-	}
-	
+	/*
+	 * Dialog interaction
+	 */
 	public void showSaveDialog()
 	{
    
