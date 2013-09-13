@@ -23,8 +23,8 @@ public class Song
 	public ChordProgression chorusProgression;
 	public ChordProgression bridgeProgression;
 	
-	public ArrayList<Integer> rhythm1;
-	public ArrayList<Integer> rhythm2;
+	public ArrayList<Integer> verseChordRhythm;
+	public ArrayList<Integer> chorusChordRhythm;
 	
 	public ArrayList<Integer> theme;
 	
@@ -46,8 +46,8 @@ public class Song
 		chorusProgression = null;
 		bridgeProgression = null;
 		
-		rhythm1 = null;
-		rhythm2 = null;
+		verseChordRhythm = null;
+		chorusChordRhythm = null;
 		
 		theme = null;
 		

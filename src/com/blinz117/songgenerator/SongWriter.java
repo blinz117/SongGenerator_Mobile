@@ -25,14 +25,18 @@ public class SongWriter {
 		MidiProgram.OVERDRIVEN_GUITAR,
 		MidiProgram.TRUMPET,
 		MidiProgram.CLARINET,
-		MidiProgram.BANJO,
-		MidiProgram.ACCORDION
+		MidiProgram.TENOR_SAX,
+		MidiProgram.ACCORDION,
+		MidiProgram.CELLO,
+		MidiProgram.FIDDLE,
+		MidiProgram.HARMONICA,
+		MidiProgram.ORCHESTRAL_HARP
 	};
 	
 	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
 	protected static final int NUMCHORDS = CHORDPROBS.length;
 	
-	protected static final double[] SCALETYPEPROBS = {15.0, 4.0, 3.0, 1.0, 2.0};
+	protected static final double[] SCALETYPEPROBS = {15.0, 7.0, 0.5, 3.0, 2.0};
 	
 	protected double[] basePartProbs = {0.6, 0.3, 0.1};
 	
@@ -81,8 +85,12 @@ public class SongWriter {
 		masterpiece.chorusProgression = generateChorusProgression();
 		masterpiece.bridgeProgression = generateVerseProgression();
 		
-		masterpiece.rhythm1 = generateRhythm();
-		masterpiece.rhythm2 = generateRhythm();
+		// generate based on half notes - 1 for verse and 1 for chorus
+		masterpiece.verseChordRhythm = generateRhythm(2);
+		if (randGen.nextDouble() < 0.2)
+			masterpiece.chorusChordRhythm = masterpiece.verseChordRhythm;
+		else 
+			masterpiece.chorusChordRhythm = generateRhythm(2);
 		
 		masterpiece.theme = generateTheme();
 		
@@ -264,16 +272,16 @@ public class SongWriter {
 		return pattern;	
 	}
 	
-	public ArrayList<Integer> generateRhythm()
+	public ArrayList<Integer> generateRhythm(int numUnitsPerBeat)
 	{
-		int numHalfBeats = mTimeSigNumer * 2;
+		int numSubbeats = mTimeSigNumer * numUnitsPerBeat;
 		ArrayList<Integer> rhythm = new ArrayList<Integer>();
 		
 		int note = 0;
-		while (note < numHalfBeats)
+		while (note < numSubbeats)
 		{
 			// generate even numbered notes with weird distribution
-			double[] probs = new double[numHalfBeats - note];
+			double[] probs = new double[numSubbeats - note];
 			for (int prob = 0; prob < probs.length; prob++)
 			{
 				if (prob == 0 || (prob + 1) % 2 == 0 )
@@ -318,7 +326,8 @@ public class SongWriter {
 	{
 		ArrayList<Note> notes = new ArrayList<Note>();
 		
-		ArrayList<Integer> rhythm = generateRhythm();
+		// generate a rhythm based on 1/8th notes
+		ArrayList<Integer> rhythm = generateRhythm(2);
 		for (Integer item: rhythm)
 		{
 			int pitch;

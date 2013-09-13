@@ -18,7 +18,8 @@ import com.leff.midi.event.meta.TimeSignature;
 
 public class MidiManager {
 	
-	protected static int qtrNote = 480; // Still need to figure out why this value works... is it the resolution below?
+	protected static final int qtrNote = 480; // Still need to figure out why this value works... is it the resolution below?
+	protected static final int eigthNote = qtrNote / 2;
 	
 	protected Song song;
 	
@@ -75,10 +76,17 @@ public class MidiManager {
 		ProgramChange melodyInstrumentSelect = new ProgramChange(0, 1, song.melodyInstrument.ordinal());//programNumber());
 		melodyTrack.insertEvent(melodyInstrumentSelect);
 		
-		ChordProgression longerProgression = song.verseProgression.plus(song.chorusProgression);
-		addChordProgressionV2(melodyTrack, chordTrack, longerProgression);//song.verseProgression);
+		//ChordProgression longerProgression = song.verseProgression.plus(song.chorusProgression);
+		//addChordProgressionV2(melodyTrack, chordTrack, longerProgression);//song.verseProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.chorusProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.bridgeProgression);
+		int chordTick = addChordProgressionV3(0, chordTrack, song.verseProgression, song.verseChordRhythm);
+		int melodyTick = addMelody(0, melodyTrack, song.verseProgression);
+		
+		int nextTick = Math.max(chordTick, melodyTick);
+		
+		addChordProgressionV3(nextTick, chordTrack, song.chorusProgression, song.chorusChordRhythm);
+		addMelody(nextTick, melodyTrack, song.chorusProgression);
 		
 		// It's best not to manually insert EndOfTrack events; MidiTrack will
 		// call closeTrack() on itself before writing itself to a file
@@ -183,6 +191,102 @@ public class MidiManager {
 		}		
 	}
 	
+	// TODO: Maybe clean up parameters list... break out into separate functions for chords and melody
+	public int addChordProgressionV3(int tick, MidiTrack track, ChordProgression progression, ArrayList<Integer> rhythm)
+	{
+		int channel = 0;
+		int basePitch = song.key.getBaseMidiPitch();
+		int velocity = 80;
+		
+		//ArrayList<ArrayList<Note>> melodyNotes = progression.getNotes();
+		ArrayList<Integer> chords = progression.getChords();
+		
+		for (int ndx = 0; ndx < chords.size(); ndx++)
+		{
+			int root = chords.get(ndx);
+			int[] triad = MusicStructure.generateTriad(root, song.scaleType);
+			
+			int chordTick = tick;
+			for (Integer duration: rhythm)
+			{
+				int noteVelocity = velocity;
+				if (duration < 0)
+				{
+					noteVelocity = 0;
+					duration *= -1;
+					
+				}
+				int length = eigthNote * duration;
+				for (int interval = 0; interval < triad.length; interval++)
+				{
+					track.insertNote(channel, basePitch + triad[interval] - 12, noteVelocity, chordTick, length);
+				}
+				// TODO: JUST DOING THIS FOR RIGHT NOW TO MAYBE MAKE SONGS SONGS SOUND A LITTLE RICHER, AND ESTABLISH CHORD BETTER
+				// REALLY SHOULD IMPOROVE CHORD GENERATION TO HELP
+				track.insertNote(channel, basePitch + triad[0] - 24, velocity, chordTick, length);
+				
+				chordTick += length;
+			}
+			
+			tick = chordTick;
+			
+			
+/*			ArrayList<Note> melodyNotes = progression.getNotes().get(ndx); //song.melody.get(ndx);
+			for (Note note: melodyNotes)
+			{
+				int noteVelocity = velocity + 30;
+				int numHalfBeats = note.numBeats;
+				if (note.numBeats < 0 || note.pitch < 0)
+				{
+					noteVelocity = 0;
+					numHalfBeats *= -1;
+				}
+				// numBeats is actually in halfBeats
+				int duration = numHalfBeats * qtrNote / 2;
+				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + note.pitch) % 7];// + 12;
+				melodyTrack.insertNote(channel + 1, pitch, noteVelocity, melodyTick, duration);
+				melodyTick += duration;
+			}*/
+
+		}	
+		
+		return tick;
+	}
+	
+	public int addMelody(int tick, MidiTrack track, ChordProgression progression)
+	{
+		int channel = 1;
+		int basePitch = song.key.getBaseMidiPitch();
+		int velocity = 105;
+		
+		//ArrayList<ArrayList<Note>> melodyNotes = progression.getNotes();
+		ArrayList<Integer> chords = progression.getChords();
+		
+		for (int ndx = 0; ndx < chords.size(); ndx++)
+		{
+			int root = chords.get(ndx);
+			
+			ArrayList<Note> melodyNotes = progression.getNotes().get(ndx); //song.melody.get(ndx);
+			for (Note note: melodyNotes)
+			{
+				int noteVelocity = velocity;
+				int numHalfBeats = note.numBeats;
+				if (note.numBeats < 0 || note.pitch < 0)
+				{
+					noteVelocity = 0;
+					numHalfBeats *= -1;
+				}
+				// numBeats is actually in halfBeats
+				int duration = numHalfBeats * eigthNote;
+				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + note.pitch) % 7];// + 12;
+				track.insertNote(channel, pitch, noteVelocity, tick, duration);
+				tick += duration;
+			}
+
+		}	
+		return tick;
+	}
+	
 	/*	public MidiFile generateTempMidi(Song song) {
 	
 	int eigthNote = 240; // Still need to figure out why this value works... is it the resolution below?
@@ -221,11 +325,11 @@ public class MidiManager {
 		currBeat += numEigthNotes;
 	}
 	
-	ArrayList<Integer> rhythm2 = song.rhythm2;
+	ArrayList<Integer> chorusChordRhythm = song.rhythm2;
 	for (int ndx = 0; ndx < rhythm1.size(); ndx++)
 	{
 		int velocity = 100;
-		int numEigthNotes = rhythm2.get(ndx);
+		int numEigthNotes = chorusChordRhythm.get(ndx);
 		// handle rests
 		if (numEigthNotes < 0)
 		{
