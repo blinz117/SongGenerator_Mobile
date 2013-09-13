@@ -303,7 +303,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    public void onAudioFocusChange(int focusChange) {
 	        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
 	        {
-	            mediaPlayer.pause();
+	            if (mediaPlayer.isPlaying()) mediaPlayer.pause();
 	        } 
 	        else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) 
 	        {
@@ -311,7 +311,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	        } 
 	        else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) 
 	        {
-	        	mediaPlayer.stop();
+	        	if (mediaPlayer.isPlaying()) mediaPlayer.stop();
 	        	onCompletion(mediaPlayer);
 	        }
 	    }
