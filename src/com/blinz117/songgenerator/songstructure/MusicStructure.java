@@ -1,5 +1,7 @@
 package com.blinz117.songgenerator.songstructure;
 
+import java.util.*;
+
 public class MusicStructure {
 	
 	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR, MIXOLYDIAN, DORIAN };
@@ -121,6 +123,28 @@ public class MusicStructure {
 		default:
 			return null;
 		}
+	}
+	
+	public enum Cadence{ AUTHENTIC, HALF, PLAGAL, INTERRUPTED;
+		public List<Integer> getChords()
+		{
+			switch(this)
+			{
+			case AUTHENTIC:
+				return Arrays.asList(5, 1);
+			case HALF:
+				return Arrays.asList(5);
+			case PLAGAL:
+				return Arrays.asList(4, 1);
+			case INTERRUPTED:
+				return Arrays.asList(5, -1);
+			default:
+				return new ArrayList<Integer>();
+			}
+		}
+		
+		public static final double[] INTERRUPTEDCHORDCHANCES = {0.0, 3.0, 1.0, 2.0, 0.0, 4.0, 0.1};
+	
 	}
 	
 	////////////////////////////////////////////////////

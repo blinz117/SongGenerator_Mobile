@@ -20,9 +20,9 @@ public class Pattern {
 	
 	public Pattern(Pattern inst)
 	{
-		chords = inst.chords;
-		melody = inst.melody;
-		notes = inst.notes;
+		chords = new ArrayList<Integer>(inst.chords);
+		melody = new ArrayList<ArrayList<Integer>>(inst.melody);
+		notes = new ArrayList<ArrayList<Note>>(inst.notes);
 	}
 	
 	public ArrayList<Integer> getChords() {return chords;}

@@ -13,7 +13,7 @@ public class ChordProgression {
 	
 	public ChordProgression(ChordProgression inst)
 	{
-		patterns = inst.patterns;
+		patterns = new ArrayList<Pattern>(inst.patterns);
 	}
 	
 	public ArrayList<Integer> getChords()

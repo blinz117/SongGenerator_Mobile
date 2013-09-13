@@ -69,13 +69,14 @@ public class MidiManager {
 		tempoTrack.insertEvent(k);
 		
 		// Add instruments
-		ProgramChange chordInstrumentSelect = new ProgramChange(0, 0, song.chordInstrument.programNumber());
+		ProgramChange chordInstrumentSelect = new ProgramChange(0, 0, song.chordInstrument.ordinal());//.programNumber());
 		chordTrack.insertEvent(chordInstrumentSelect);
 		
-		ProgramChange melodyInstrumentSelect = new ProgramChange(0, 1, song.melodyInstrument.programNumber());
+		ProgramChange melodyInstrumentSelect = new ProgramChange(0, 1, song.melodyInstrument.ordinal());//programNumber());
 		melodyTrack.insertEvent(melodyInstrumentSelect);
 		
-		addChordProgressionV2(melodyTrack, chordTrack, song.verseProgression);
+		ChordProgression longerProgression = song.verseProgression.plus(song.chorusProgression);
+		addChordProgressionV2(melodyTrack, chordTrack, longerProgression);//song.verseProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.chorusProgression);
 //		addChordProgression(melodyTrack, chordTrack, song.bridgeProgression);
 		
@@ -140,7 +141,7 @@ public class MidiManager {
 	{
 		int channel = 0;
 		int basePitch = song.key.getBaseMidiPitch();
-		int velocity = 100;
+		int velocity = 85;
 		
 		int chordTick = 0;
 		int melodyTick = 0;
@@ -157,12 +158,15 @@ public class MidiManager {
 			{
 				chordTrack.insertNote(channel, basePitch + triad[interval] - 12, velocity, chordTick /*ndx * qtrNote * song.timeSigNum*/, qtrNote * song.timeSigNum);
 			}
+			// TODO: JUST DOING THIS FOR RIGHT NOW TO MAYBE MAKE SONGS SONGS SOUND A LITTLE RICHER..
+			// REALLY SHOULD IMPOROVE CHORD GENERATION TO HELP
+			chordTrack.insertNote(channel, basePitch + triad[0] - 24, velocity, chordTick, qtrNote * song.timeSigNum);
 			chordTick += qtrNote * song.timeSigNum;
 			
 			ArrayList<Note> melodyNotes = progression.getNotes().get(ndx); //song.melody.get(ndx);
 			for (Note note: melodyNotes)
 			{
-				int noteVelocity = velocity + 20;
+				int noteVelocity = velocity + 30;
 				int numHalfBeats = note.numBeats;
 				if (note.numBeats < 0 || note.pitch < 0)
 				{
@@ -294,4 +298,6 @@ public class MidiManager {
 		return midi;
 		
 	}*/
+	
+	
 }

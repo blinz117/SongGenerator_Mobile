@@ -1,7 +1,6 @@
 package com.blinz117.songgenerator;
 
-import java.util.Random;
-import java.util.ArrayList;
+import java.util.*;
 
 import com.blinz117.songgenerator.songstructure.*;
 import com.blinz117.songgenerator.songstructure.MusicStructure;
@@ -16,16 +15,18 @@ public class SongWriter {
 	 * TODO: Should some of these go into the MusicStructure class?
 	 */
 	public static ProgramChange.MidiProgram[] baseInstruments = {
-		MidiProgram.STRING_ENSEMBLE_2, 
+		MidiProgram.STRING_ENSEMBLE_1, 
 		MidiProgram.ACOUSTIC_GUITAR_STEEL,
 		MidiProgram.ACOUSTIC_GRAND_PIANO,
 		MidiProgram.VIOLIN,
-		MidiProgram.ROCK_ORGAN,
+		MidiProgram.CHURCH_ORGAN,
 		MidiProgram.DISTORTION_GUITAR,
 		MidiProgram.BRASS_SECTION,
 		MidiProgram.OVERDRIVEN_GUITAR,
 		MidiProgram.TRUMPET,
-		MidiProgram.CLARINET
+		MidiProgram.CLARINET,
+		MidiProgram.BANJO,
+		MidiProgram.ACCORDION
 	};
 	
 	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
@@ -76,9 +77,9 @@ public class SongWriter {
 		masterpiece.key = MusicStructure.PITCHES[randGen.nextInt(MusicStructure.NUMPITCHES)];
 		
 		masterpiece.structure = generateStructure();
-		masterpiece.verseProgression = generateChordProgression();
-		masterpiece.chorusProgression = generateChordProgression();
-		masterpiece.bridgeProgression = generateChordProgression();
+		masterpiece.verseProgression = generateVerseProgression();
+		masterpiece.chorusProgression = generateChorusProgression();
+		masterpiece.bridgeProgression = generateVerseProgression();
 		
 		masterpiece.rhythm1 = generateRhythm();
 		masterpiece.rhythm2 = generateRhythm();
@@ -160,6 +161,26 @@ public class SongWriter {
 	}
 	*/
 	
+	public ChordProgression generateVerseProgression()
+	{
+		ChordProgression chorus = generateChordProgression();
+		applyCadence(chorus.patterns.get(chorus.patterns.size() - 1), Cadence.HALF);
+		return chorus;
+	}
+	
+	
+	public ChordProgression generateChorusProgression()
+	{
+		ChordProgression chorus = generateChordProgression();
+		Cadence type;
+		if (randGen.nextDouble() < 0.8)
+			type = Cadence.AUTHENTIC;
+		else
+			type = Cadence.PLAGAL;
+		applyCadence(chorus.patterns.get(chorus.patterns.size() - 1), type);
+		return chorus;
+	}
+	
 	// slightly better(?) "algorithm" for generating chord progressions
 	// TODO: Keep working on this so it is more robust and
 	// generates more varied songs
@@ -175,31 +196,46 @@ public class SongWriter {
 		// always start with root chord
 		partA.chords.set(0, 1);
 		
-		if (randGen.nextDouble() < 0.2)
-			partB = partA;
+		if (randGen.nextDouble() < 0.75)
+		{
+			partB = new Pattern(partA);
+			if (randGen.nextDouble() < 0.45)
+				applyMelodyVariation(partB);
+		}
 		else
 			partB = generatePattern(numChords);
-		if (randGen.nextDouble() < 0.8)
-			// end second part on 4-chord
-			partB.chords.set(numChords - 1, 4);
+		double cadenceChance = randGen.nextDouble();
+		if (cadenceChance < 0.75)
+			// end second part on half cadence
+			//partB.chords.set(numChords - 1, 4);
+			applyCadence(partB, Cadence.HALF);
+		else if (cadenceChance < 0.9)
+			applyCadence(partB, Cadence.INTERRUPTED);
 
-		if (randGen.nextDouble() < 0.5)
-			partC = generatePattern(numChords);
-		else
-			partC = partA;
-
-		if (randGen.nextDouble() < 0.3)
+		if (randGen.nextDouble() < 0.6)
 		{
-			partD = partB;
-			if (randGen.nextDouble() < 0.65)
+			partC = new Pattern(partA);
+			if (randGen.nextDouble() < 0.25)
+				applyMelodyVariation(partC);
+		}
+		else
+			partC = generatePattern(numChords);
+
+		if (randGen.nextDouble() < 0.85)
+		{
+			partD = new Pattern(partB);
+			if (randGen.nextDouble() < 0.85)
 				// add a different melody at the end to make it more interesting
-				partD.notes.set(partD.notes.size() - 1, generateNotes());
+				applyMelodyVariation(partD);
+				//partD.notes.set(partD.notes.size() - 1, generateNotes());
 		}
 		else
 			partD = generatePattern(numChords);
-		// end last part on 5-chord. Next part will start with 1, so
-		// there will be some resolution
-		partD.chords.set(numChords - 1, 5);
+		
+		// This part will get applied at the progression level, so don't set it here
+		// end last part on half cadence
+		//partD.chords.set(numChords - 1, 5);
+		//applyCadence(partD, Cadence.HALF);
 		
 		chordProg.patterns.add(partA);	
 		chordProg.patterns.add(partB);
@@ -326,5 +362,58 @@ public class SongWriter {
 //		}
 //		return melody;
 //	}
+	
+	public void applyCadence(Pattern pattern, Cadence type)
+	{
+		List<Integer> cadenceChords = type.getChords();
+		int numCadenceChords = cadenceChords.size();
+		int numPatternChords = pattern.chords.size();
+		
+		// realistically, this shouldn't happen, but try to handle it just in case
+		if (numCadenceChords > numPatternChords)
+			cadenceChords = cadenceChords.subList(numCadenceChords - numPatternChords, numCadenceChords);
+		
+		for (int chord = 0; chord < cadenceChords.size(); chord++)
+		{
+			pattern.chords.set(numPatternChords - numCadenceChords + chord, cadenceChords.get(chord));
+		}
+		
+		if (type == Cadence.INTERRUPTED)
+		{
+			pattern.chords.set(numPatternChords - 1, Utils.pickNdxByProb(Cadence.INTERRUPTEDCHORDCHANCES) + 1);
+		}
+	}
+	
+	public void applyMelodyVariation(Pattern pattern)
+	{
+		int numChords = pattern.chords.size();
+		double variationChance = randGen.nextDouble();
+		// 20% chance to just make a whole new melody
+		if (variationChance < 0.2)
+		{
+			for (int chord = 0; chord < numChords; chord++)
+			{
+				pattern.melody.set(chord, generateTheme());
+				pattern.notes.set(chord, generateNotes());
+			}
+		}
+		// 50% change to regenerate just modify the last measure/chord
+		else if (variationChance < 0.7)
+		{
+			pattern.melody.set(numChords - 1, generateTheme());
+			pattern.notes.set(numChords - 1, generateNotes());
+		}
+		// 20% chance to just make the last note last the whole measure
+		else if (variationChance < 0.9)
+		{
+			int pitch = Utils.pickNdxByProb(pitchProbs) + 1;
+			// have to multiply by 2 here since duration is in half beats
+			Note lastNote = new Note(pitch, mTimeSigNumer * 2);
+			ArrayList<Note> notes = pattern.notes.get(numChords - 1);
+			notes.clear();
+			notes.add(lastNote);	
+		}
+		
+	}
 	
 } //class SongWriter

@@ -28,8 +28,8 @@ import android.support.v4.app.*;
 
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogListener{
 
-	Spinner timeSigNumSpin;
-	Spinner timeSigDenomSpin;
+//	Spinner timeSigNumSpin;
+//	Spinner timeSigDenomSpin;
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
@@ -54,19 +54,19 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		setContentView(R.layout.activity_main);
 		
 		// Set up adapter and listener for spinners
-		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNum);
+		//timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNum);
 		ArrayAdapter<CharSequence> numAdapter = ArrayAdapter.createFromResource(this,
 		        R.array.timeSig_array, android.R.layout.simple_spinner_item);
 		numAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		timeSigNumSpin.setAdapter(numAdapter);
-		timeSigNumSpin.setOnItemSelectedListener(this);
+		//timeSigNumSpin.setAdapter(numAdapter);
+		//timeSigNumSpin.setOnItemSelectedListener(this);
 		
-		timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenom);
+		//timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenom);
 		ArrayAdapter<CharSequence> denomAdapter = ArrayAdapter.createFromResource(this,
 		        R.array.timeSig_array, android.R.layout.simple_spinner_item);
 		denomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		timeSigDenomSpin.setAdapter(denomAdapter);
-		timeSigDenomSpin.setOnItemSelectedListener(this);
+		//timeSigDenomSpin.setAdapter(denomAdapter);
+		//timeSigDenomSpin.setOnItemSelectedListener(this);
 		
 		songGenButton = (Button)findViewById(R.id.songGen);
 		songGenButton.setOnClickListener(onSongGenerate);
@@ -95,6 +95,35 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 	}
+	
+	
+	// temporary versions that just save and restore the display text. The tempMidi file should already be saved,
+	// so you should still be able to play
+	
+	 @Override
+	    public void onSaveInstanceState(Bundle savedInstanceState) {
+	    	//Save state on certain changes, such as screen rotation
+		   	savedInstanceState.putCharSequence("DISPLAYTEXT", songStructureView.getText());
+	        super.onSaveInstanceState(savedInstanceState);
+	    }
+	    
+		@Override
+	    public void onRestoreInstanceState(Bundle savedInstanceState) {
+	    	//Restore state on certain changes, such as screen rotation
+	          super.onRestoreInstanceState(savedInstanceState);
+
+	          CharSequence displayText = savedInstanceState.getCharSequence("DISPLAYTEXT");
+	          songStructureView.setText(savedInstanceState.getCharSequence("DISPLAYTEXT"));
+	          
+	          if(displayText.length() > 0)
+	          {
+	        	  songStructureView.setText(displayText);
+	        	  songGenButton.setEnabled(true);
+	        	  saveButton.setEnabled(true);
+	        	  playButton.setEnabled(true);
+	        	  playButton.setText(getResources().getString(R.string.play_song));
+	          }
+	    }
 	
 /*	
  * TODO: Get this up and running again after making stuff Serializable
@@ -350,7 +379,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		//displayString += "\nMelody: " + currSong.melody;
 		
-		displayString += "\nNotes: " + currSong.verseProgression.getNotes();//.melody;
+		displayString += "\nVerse Notes: " + currSong.verseProgression.getNotes();//.melody;
+		displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
 		
 		songStructureView.setText(displayString);
 	}
