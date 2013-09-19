@@ -2,6 +2,8 @@ package com.blinz117.songgenerator.songstructure;
 
 import java.util.*;
 
+import com.blinz117.songgenerator.Utils;
+
 public class MusicStructure {
 	
 	public enum ScaleType { MAJOR, NATURALMINOR, HARMONICMINOR, MIXOLYDIAN, DORIAN };
@@ -97,11 +99,16 @@ public class MusicStructure {
 	
 	public static int[] generateTriad(int root, ScaleType scaleType)
 	{
-		int[] scaleIntervals = getScaleIntervals(scaleType);
+		//int[] scaleIntervals = getScaleIntervals(scaleType);
 		int[] triad = new int[3];
+		/*
 		triad[0] = scaleIntervals[root - 1]; 
 		triad[1] = scaleIntervals[(root + 1) % 7];
 		triad[2] = scaleIntervals[(root + 3) % 7];
+		*/
+		triad[0] = getInterval(scaleType, 1, root) + getChordInterval(scaleType, root, 1);
+		triad[1] = getInterval(scaleType, 1, root) + getChordInterval(scaleType, root, 3);
+		triad[2] = getInterval(scaleType, 1, root) + getChordInterval(scaleType, root, 5);
 		
 		return triad;
 	}
@@ -120,6 +127,25 @@ public class MusicStructure {
 			return MIXOLYDIANSCALEINTERVALS;
 		case DORIAN:
 			return DORIANSCALEINTERVALS;
+		default:
+			return null;
+		}
+	}
+	
+	public static int[] getScaleSemitones(ScaleType type)
+	{
+		switch (type)
+		{
+		case MAJOR:
+			return MAJORSCALE;
+		case NATURALMINOR:
+			return NATURALMINORSCALE;
+		case HARMONICMINOR:
+			return HARMONICMINORSCALE;
+		case MIXOLYDIAN:
+			return MIXOLYDIANSCALE;
+		case DORIAN:
+			return DORIANSCALE;
 		default:
 			return null;
 		}
@@ -158,12 +184,12 @@ public class MusicStructure {
 	
 	
 	public static final double[][] chordChances = {
-		{0, 2, 4, 10, 8, 4, 0.5},
-		{4, 0, 2, 5, 6, 2, 0.25},
-		{3, 2, 0, 6, 6, 4, 0.25},
-		{6, 4, 4, 0, 10, 4, 0.25},
-		{10, 3, 3, 6, 0, 4, 0.5},
-		{3, 2, 5, 5, 5, 0, 0.5},
+		{2, 3, 4, 10, 8, 4, 0.25},
+		{4, 1, 2, 5, 6, 2, 0.25},
+		{3, 2, 1, 6, 6, 4, 0.25},
+		{6, 4, 4, 2, 10, 4, 0.25},
+		{10, 3, 3, 6, 2, 4, 0.25},
+		{3, 2, 5, 5, 5, 1, 0.25},
 		{10, 1, 1, 3, 4, 1, 0}
 	};
 	
@@ -182,7 +208,25 @@ public class MusicStructure {
 	 */
 	public int scaleToChordInterval(int chordRoot, int degree)
 	{
-		return (degree - chordRoot) & 7;
+		return (degree - chordRoot) % 7;
+	}
+	
+	/*
+	 * Returns the interval in semitones from scale degree degree1 to 
+	 *  scale degree degree2 in scale
+	 */
+	public static int getInterval(ScaleType scale, int degree1, int degree2)
+	{
+		return Utils.sumSubArray(getScaleSemitones(scale), degree1 - 1, degree2 - 1);
+	}
+	
+	/*
+	 * Returns the interval in semitones from scale degree chordRoot to 
+	 *  scale degree degree2 in scale
+	 */
+	public static int getChordInterval(ScaleType scale, int chordRoot, int chordDegree)
+	{
+		return getInterval(scale, chordRoot, (chordRoot - 1 + chordDegree - 1) % 7 + 1);
 	}
 
 }
