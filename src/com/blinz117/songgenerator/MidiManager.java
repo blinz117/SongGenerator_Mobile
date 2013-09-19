@@ -21,6 +21,9 @@ public class MidiManager {
 	protected static final int qtrNote = 480; // Still need to figure out why this value works... is it the resolution below?
 	protected static final int eigthNote = qtrNote / 2;
 	
+	protected static final int chordChannel = 0;
+	protected static final int melodyChannel = 1;
+	
 	protected Song song;
 	
 	public MidiManager()
@@ -70,10 +73,10 @@ public class MidiManager {
 		tempoTrack.insertEvent(k);
 		
 		// Add instruments
-		ProgramChange chordInstrumentSelect = new ProgramChange(0, 0, song.chordInstrument.ordinal());//.programNumber());
+		ProgramChange chordInstrumentSelect = new ProgramChange(0, chordChannel, song.chordInstrument.ordinal());//.programNumber());
 		chordTrack.insertEvent(chordInstrumentSelect);
 		
-		ProgramChange melodyInstrumentSelect = new ProgramChange(0, 1, song.melodyInstrument.ordinal());//programNumber());
+		ProgramChange melodyInstrumentSelect = new ProgramChange(0, melodyChannel, song.melodyInstrument.ordinal());//programNumber());
 		melodyTrack.insertEvent(melodyInstrumentSelect);
 		
 		//ChordProgression longerProgression = song.verseProgression.plus(song.chorusProgression);
@@ -194,7 +197,6 @@ public class MidiManager {
 	// TODO: Maybe clean up parameters list... break out into separate functions for chords and melody
 	public int addChordProgressionV3(int tick, MidiTrack track, ChordProgression progression, ArrayList<Integer> rhythm)
 	{
-		int channel = 0;
 		int basePitch = song.key.getBaseMidiPitch();
 		int velocity = 80;
 		
@@ -219,11 +221,11 @@ public class MidiManager {
 				int length = eigthNote * duration;
 				for (int interval = 0; interval < triad.length; interval++)
 				{
-					track.insertNote(channel, basePitch + triad[interval] - 12, noteVelocity, chordTick, length);
+					track.insertNote(chordChannel, basePitch + triad[interval] - 12, noteVelocity, chordTick, length);
 				}
 				// TODO: JUST DOING THIS FOR RIGHT NOW TO MAYBE MAKE SONGS SONGS SOUND A LITTLE RICHER, AND ESTABLISH CHORD BETTER
 				// REALLY SHOULD IMPOROVE CHORD GENERATION TO HELP
-				track.insertNote(channel, basePitch + triad[0] - 24, velocity, chordTick, length);
+				track.insertNote(chordChannel, basePitch + triad[0] - 24, velocity, chordTick, length);
 				
 				chordTick += length;
 			}
@@ -255,7 +257,6 @@ public class MidiManager {
 	
 	public int addMelody(int tick, MidiTrack track, ChordProgression progression)
 	{
-		int channel = 1;
 		int basePitch = song.key.getBaseMidiPitch();
 		int velocity = 105;
 		
@@ -279,7 +280,7 @@ public class MidiManager {
 				// numBeats is actually in halfBeats
 				int duration = numHalfBeats * eigthNote;
 				int pitch = basePitch + MusicStructure.getScaleIntervals(song.scaleType)[(root + note.pitch) % 7];// + 12;
-				track.insertNote(channel, pitch, noteVelocity, tick, duration);
+				track.insertNote(melodyChannel, pitch, noteVelocity, tick, duration);
 				tick += duration;
 			}
 

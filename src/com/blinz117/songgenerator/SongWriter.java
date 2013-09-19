@@ -14,7 +14,24 @@ public class SongWriter {
 	/*
 	 * TODO: Should some of these go into the MusicStructure class?
 	 */
-	public static ProgramChange.MidiProgram[] baseInstruments = {
+	public static ProgramChange.MidiProgram[] chordInstruments = {
+		MidiProgram.STRING_ENSEMBLE_1, 
+		MidiProgram.ACOUSTIC_GUITAR_STEEL,
+		MidiProgram.ACOUSTIC_GRAND_PIANO,
+		MidiProgram.CELLO,
+		MidiProgram.CHURCH_ORGAN,
+		MidiProgram.DISTORTION_GUITAR,
+		MidiProgram.BRASS_SECTION,
+		MidiProgram.OVERDRIVEN_GUITAR,
+		MidiProgram.TROMBONE,
+		MidiProgram.OBOE,
+		MidiProgram.BARITONE_SAX,
+		MidiProgram.ACCORDION,
+		MidiProgram.ELECTRIC_GUITAR_JAZZ,
+		MidiProgram.BRIGHT_ACOUSTIC_PIANO
+	};
+	
+	public static ProgramChange.MidiProgram[] melodyInstruments = {
 		MidiProgram.STRING_ENSEMBLE_1, 
 		MidiProgram.ACOUSTIC_GUITAR_STEEL,
 		MidiProgram.ACOUSTIC_GRAND_PIANO,
@@ -25,15 +42,19 @@ public class SongWriter {
 		MidiProgram.OVERDRIVEN_GUITAR,
 		MidiProgram.TRUMPET,
 		MidiProgram.CLARINET,
-		MidiProgram.TENOR_SAX,
+		MidiProgram.ALTO_SAX,
 		MidiProgram.ACCORDION,
-		MidiProgram.CELLO,
 		MidiProgram.FIDDLE,
 		MidiProgram.HARMONICA,
-		MidiProgram.ORCHESTRAL_HARP
+		MidiProgram.DULCIMER,
+		MidiProgram.MUTED_TRUMPET,
+		MidiProgram.TREMOLO_STRINGS,
+		MidiProgram.FLUTE,
+		MidiProgram.ELECTRIC_GUITAR_JAZZ,
+		MidiProgram.BRIGHT_ACOUSTIC_PIANO
 	};
 	
-	protected static final double[] CHORDPROBS = {5.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.25};
+	protected static final double[] CHORDPROBS = {8.0, 1.5, 1.5, 4.0, 5.0, 1.5, 0.1};
 	protected static final int NUMCHORDS = CHORDPROBS.length;
 	
 	protected static final double[] SCALETYPEPROBS = {15.0, 7.0, 0.5, 3.0, 2.0};
@@ -99,9 +120,9 @@ public class SongWriter {
 		//masterpiece.melody.addAll(generateMelody(masterpiece.bridgeProgression.getChords()));
 		
 		
-		masterpiece.chordInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
+		masterpiece.chordInstrument = chordInstruments[randGen.nextInt(chordInstruments.length)];
 		
-		masterpiece.melodyInstrument = baseInstruments[randGen.nextInt(baseInstruments.length)];
+		masterpiece.melodyInstrument = melodyInstruments[randGen.nextInt(melodyInstruments.length)];
 		
 		return masterpiece;
 	} // writeNewSong
@@ -202,22 +223,23 @@ public class SongWriter {
 		
 		partA = generatePattern(numChords);
 		// always start with root chord
-		partA.chords.set(0, 1);
+		double[] startChords = {4.5, 0.0, 0.0, 2.0, 1.0, 1.5, 0.0};
+		partA.chords.set(0, Utils.pickNdxByProb(startChords) + 1);
 		
 		if (randGen.nextDouble() < 0.75)
 		{
 			partB = new Pattern(partA);
-			if (randGen.nextDouble() < 0.45)
+			if (randGen.nextDouble() < 0.6)
 				applyMelodyVariation(partB);
 		}
 		else
 			partB = generatePattern(numChords);
 		double cadenceChance = randGen.nextDouble();
-		if (cadenceChance < 0.75)
+		if (cadenceChance < 0.45)
 			// end second part on half cadence
 			//partB.chords.set(numChords - 1, 4);
 			applyCadence(partB, Cadence.HALF);
-		else if (cadenceChance < 0.9)
+		else if (cadenceChance < 0.65)
 			applyCadence(partB, Cadence.INTERRUPTED);
 
 		if (randGen.nextDouble() < 0.6)
@@ -406,14 +428,14 @@ public class SongWriter {
 				pattern.notes.set(chord, generateNotes());
 			}
 		}
-		// 50% change to regenerate just modify the last measure/chord
-		else if (variationChance < 0.7)
+		// 60% change to regenerate just modify the last measure/chord
+		else if (variationChance < 0.8)
 		{
 			pattern.melody.set(numChords - 1, generateTheme());
 			pattern.notes.set(numChords - 1, generateNotes());
 		}
 		// 20% chance to just make the last note last the whole measure
-		else if (variationChance < 0.9)
+		else
 		{
 			int pitch = Utils.pickNdxByProb(pitchProbs) + 1;
 			// have to multiply by 2 here since duration is in half beats
