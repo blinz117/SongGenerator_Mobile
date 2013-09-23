@@ -1,6 +1,7 @@
 package com.blinz117.songgenerator;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import com.blinz117.songgenerator.MidiManager;
@@ -448,6 +449,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	        return;
 	    }
 
+	    FileChannel source = null;
+	    FileChannel destination = null;
 	    try {
 		    File parentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 		    if (!parentDir.exists())
@@ -461,12 +464,38 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		    	return;
 		    }
 		    
+		    // Copy file from temporary saved file
+		    FileInputStream midiStream = openFileInput(getResources().getString(R.string.temp_midi));
+		    source = midiStream.getChannel();
+		    destination = new FileOutputStream(saveFile).getChannel();
+	        destination.transferFrom(source, 0, source.size());
+
+		    /*
 		    // it may already exist, but just be safe
 		    createMidiFile();
 		    midiSong.writeToFile(saveFile);
+		    */
 	    }
 	    catch(Exception e) {
 	    	showError(getResources().getString(R.string.error_create_MIDI));
+	    }
+	    finally {
+	        if(source != null) {
+	            try {
+					source.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+	        if(destination != null) {
+	            try {
+					destination.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
 	    }
 	    
 	}
