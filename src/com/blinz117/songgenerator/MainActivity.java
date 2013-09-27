@@ -408,7 +408,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	{
 		try {
 			createMidiFile();
-			File midiOut = new File(getFilesDir(), "tempOut.mid");
+			File midiOut = new File(getFilesDir(), getResources().getString(R.string.temp_midi));
 			midiSong.writeToFile(midiOut);
 		} 
 		catch(Exception e) {
