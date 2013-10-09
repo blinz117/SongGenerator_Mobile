@@ -2,17 +2,12 @@ package com.blinz117.songgenerator;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 
-import com.blinz117.songgenerator.MidiManager;
-import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
-import com.blinz117.songgenerator.songstructure.Pattern;
-import com.blinz117.songgenerator.songstructure.ChordProgression;
-import com.blinz117.songgenerator.songstructure.Song;
-import com.blinz117.songgenerator.songstructure.MusicStructure.*;
+import com.blinz117.songbuilder.MidiGenerator;
+import com.blinz117.songbuilder.SongWriter;
+import com.blinz117.songbuilder.songstructure.Song;
 
 import com.leff.midi.*;
-import com.leff.midi.event.ProgramChange.MidiProgram;
 
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
@@ -27,7 +22,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 import android.support.v4.app.*;
 
-public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogListener{
+public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener{
 
 //	Spinner timeSigNumSpin;
 //	Spinner timeSigDenomSpin;
@@ -400,7 +395,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	 */
 	public void createMidiFile()
 	{
-		MidiManager midiManager = new MidiManager();
+		MidiGenerator midiManager = new MidiGenerator();
 		midiSong = midiManager.generateChordMidi(currSong);
 	}
 	
