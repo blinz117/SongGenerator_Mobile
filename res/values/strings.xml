@@ -5,10 +5,10 @@
     <string name="action_settings">Settings</string>
     
     <!-- UI strings -->
-    <string name="generate_song">Generate Song!</string>
-    <string name="play_song">Play Song!</string>
-    <string name="stop_play">Stop Playing!</string>
-    <string name="save_song">Save Song!</string>
+    <string name="generate_song">Generate</string>
+    <string name="play_song">Play</string>
+    <string name="stop_play">Stop</string>
+    <string name="save_song">Save</string>
     
     <!-- error strings -->
     <string name="error_create_MIDI">Oops! Something bad happened trying to create a new MIDI file!</string>
