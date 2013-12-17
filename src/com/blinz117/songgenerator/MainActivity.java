@@ -446,6 +446,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 
 	    FileChannel source = null;
 	    FileChannel destination = null;
+	    FileOutputStream outStream = null;
 	    try {
 		    File parentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 		    if (!parentDir.exists())
@@ -462,7 +463,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		    // Copy file from temporary saved file
 		    FileInputStream midiStream = openFileInput(getResources().getString(R.string.temp_midi));
 		    source = midiStream.getChannel();
-		    destination = new FileOutputStream(saveFile).getChannel();
+		    outStream = new FileOutputStream(saveFile);
+		    destination = outStream.getChannel();
 	        destination.transferFrom(source, 0, source.size());
 
 		    /*
