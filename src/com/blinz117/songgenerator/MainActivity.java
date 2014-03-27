@@ -2,10 +2,13 @@ package com.blinz117.songgenerator;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
-import com.blinz117.songbuilder.songstructure.Song;
+import com.blinz117.songbuilder.songstructure.*;
+import com.google.gson.Gson;
 
 import com.leff.midi.*;
 
@@ -24,8 +27,15 @@ import android.support.v4.app.*;
 
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener{
 
-//	Spinner timeSigNumSpin;
-//	Spinner timeSigDenomSpin;
+	Spinner timeSigNumSpin;
+	Spinner timeSigDenomSpin;
+	Spinner pitchSpin;
+	Spinner modeSpin;
+	Spinner insChordSpin;
+	Spinner insMelodySpin;
+	
+	EditText tempoValue;
+	
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
@@ -41,28 +51,41 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	String saveFileName;
 	
+	final List<Integer> timeSigNumVals = convertIntArray(MusicStructure.TIMESIGNUMVALUES);
+	final List<Integer> timeSigDenomVals = convertIntArray(MusicStructure.TIMESIGDENOMVALUES);
+	
 	/*
 	 * State handlers
 	 */
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) 
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		// Set up adapter and listener for spinners
-		//timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNum);
-		ArrayAdapter<CharSequence> numAdapter = ArrayAdapter.createFromResource(this,
-		        R.array.timeSig_array, android.R.layout.simple_spinner_item);
-		numAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		//timeSigNumSpin.setAdapter(numAdapter);
-		//timeSigNumSpin.setOnItemSelectedListener(this);
+		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNumerSpinner);
+		initSpinnerFromList(timeSigNumSpin, timeSigNumVals);
 		
-		//timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenom);
-		ArrayAdapter<CharSequence> denomAdapter = ArrayAdapter.createFromResource(this,
-		        R.array.timeSig_array, android.R.layout.simple_spinner_item);
-		denomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		//timeSigDenomSpin.setAdapter(denomAdapter);
-		//timeSigDenomSpin.setOnItemSelectedListener(this);
+		timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenomSpinner);
+		initSpinnerFromList(timeSigDenomSpin, timeSigDenomVals);
+		
+		pitchSpin = (Spinner) findViewById(R.id.pitchSpinner);
+		initSpinnerFromArray(pitchSpin, MusicStructure.PITCHES);
+		
+		modeSpin = (Spinner) findViewById(R.id.modeSpinner);
+		initSpinnerFromArray(modeSpin, MusicStructure.ScaleType.values());
+		
+		insChordSpin = (Spinner) findViewById(R.id.insChordSpinner);
+		initSpinnerFromArray(insChordSpin, SongWriter.chordInstruments);
+		
+		insMelodySpin = (Spinner) findViewById(R.id.insMelodySpinner);
+		initSpinnerFromArray(insMelodySpin, SongWriter.melodyInstruments);
+		
+		tempoValue = (EditText)findViewById(R.id.tempoVal);
+		tempoValue.setText("120");
+		tempoValue.setClickable(false);
+		tempoValue.setFocusable(false);
 		
 		songGenButton = (Button)findViewById(R.id.songGen);
 		songGenButton.setOnClickListener(onSongGenerate);
@@ -91,139 +114,54 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 	}
-	
-	
-	// temporary versions that just save and restore the display text. The tempMidi file should already be saved,
+
+	// temporary versions that just save and restore the display text. The
+	// tempMidi file should already be saved,
 	// so you should still be able to play
-	
-	 @Override
-	    public void onSaveInstanceState(Bundle savedInstanceState) {
-	    	//Save state on certain changes, such as screen rotation
-		   	savedInstanceState.putCharSequence("DISPLAYTEXT", songStructureView.getText());
-	        super.onSaveInstanceState(savedInstanceState);
-	    }
-	    
-		@Override
-	    public void onRestoreInstanceState(Bundle savedInstanceState) {
-	    	//Restore state on certain changes, such as screen rotation
-	          super.onRestoreInstanceState(savedInstanceState);
 
-	          CharSequence displayText = savedInstanceState.getCharSequence("DISPLAYTEXT");
-	          songStructureView.setText(savedInstanceState.getCharSequence("DISPLAYTEXT"));
-	          
-	          if(displayText.length() > 0)
-	          {
-	        	  songStructureView.setText(displayText);
-	        	  songGenButton.setEnabled(true);
-	        	  saveButton.setEnabled(true);
-	        	  playButton.setEnabled(true);
-	        	  playButton.setText(getResources().getString(R.string.play_song));
-	          }
-	    }
-	
-/*	
- * TODO: Get this up and running again after making stuff Serializable
- *  SUPRESS THESE FOR NOW...
- *  The way I have restructured Songs, chord progressions, patterns, and melodies, this doesn't lend itself
- *  well to saving/restoring state until I have Song (and its subcomponents) implement the Serializable interface.
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-    	//Save state on certain changes, such as screen rotation
-    	boolean hasSong = (currSong != null);
-    	savedInstanceState.putBoolean("HASSONG", hasSong);
-    	
-    	if (hasSong)
-    	{
-	    	savedInstanceState.putSerializable("STRUCTURE", currSong.structure);
-	    	savedInstanceState.putSerializable("VERSE", currSong.verseProgression.getChords());
-	    	savedInstanceState.putSerializable("CHORUS", currSong.chorusProgression.getChords());
-	    	savedInstanceState.putSerializable("BRIDGE", currSong.bridgeProgression.getChords());
-	    	
-	    	savedInstanceState.putSerializable("MELODY", currSong.melody);
-	    	
-	    	savedInstanceState.putSerializable("TSNUM", currSong.timeSigNum);
-	    	savedInstanceState.putSerializable("TSDENOM", currSong.timeSigDenom);
-	    	
-	    	savedInstanceState.putSerializable("SCALETYPE", currSong.scaleType);
-	    	savedInstanceState.putSerializable("KEY", currSong.key);
-	    	
-	    	savedInstanceState.putSerializable("CHORDINSTRUMENT", currSong.chordInstrument);
-	    	savedInstanceState.putSerializable("MELODYINSTRUMENT", currSong.melodyInstrument);
-    	}
-        super.onSaveInstanceState(savedInstanceState);
-    }
-    
-    @SuppressWarnings("unchecked")
 	@Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-    	//Restore state on certain changes, such as screen rotation
-          super.onRestoreInstanceState(savedInstanceState);
-          boolean hasSong = savedInstanceState.getBoolean("HASSONG");
-          if (hasSong)
-          {
-	          currSong = new Song();
-	          currSong.structure = (ArrayList<SongPart>) savedInstanceState.getSerializable("STRUCTURE");
-	          
-	          // TODO: This is not an ideal way to do this... maybe need to implement the serialize interface for
-	          // a song object and all of the classes it contains
-	          
-	          currSong.verseProgression = new ChordProgression();
-	          ArrayList<Integer> chords = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
-	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
-	          // only works right now because patterns and chord progressions all have the same number of elements
-	          for (int i = 0; i < 4; i++)
-	          {
-	        	  Pattern newPattern = new Pattern();
-	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
-	        	  currSong.verseProgression.patterns.add(newPattern);
-	          }
+	public void onSaveInstanceState(Bundle savedInstanceState) 
+	{
+		// Save state on certain changes, such as screen rotation
+		// savedInstanceState.putCharSequence("DISPLAYTEXT", songStructureView.getText());
+		Gson gson = new Gson();
+		savedInstanceState.putString("SONG", gson.toJson(currSong));
 
-	          currSong.chorusProgression = new ChordProgression();
-	          chords = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
-	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
-	          // only works right now because patterns and chord progressions all have the same number of elements
-	          for (int i = 0; i < 4; i++)
-	          {
-	        	  Pattern newPattern = new Pattern();
-	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
-	        	  currSong.chorusProgression.patterns.add(newPattern);
-	          }
-	          currSong.bridgeProgression = new ChordProgression();
-	          chords = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
-	          // TODO: AAAAHH!!! HACK ALERT! HACK ALERT!
-	          // only works right now because patterns and chord progressions all have the same number of elements
-	          for (int i = 0; i < 4; i++)
-	          {
-	        	  Pattern newPattern = new Pattern();
-	        	  newPattern.chords.addAll(chords.subList(i*4, i*4 + 4));
-	        	  currSong.bridgeProgression.patterns.add(newPattern);
-	          }
-	          //currSong.chorusProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
-	         // currSong.bridgeProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
-	          //currSong.verseProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("VERSE");
-	          //currSong.chorusProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("CHORUS");
-	         // currSong.bridgeProgression = (ArrayList<Integer>) savedInstanceState.getSerializable("BRIDGE");
-	          
-	          currSong.melody = (ArrayList<ArrayList<Integer>>) savedInstanceState.getSerializable("MELODY");
-	
-	          currSong.timeSigNum = (Integer) savedInstanceState.getSerializable("TSNUM");	          
-	          currSong.timeSigDenom = (Integer) savedInstanceState.getSerializable("TSDENOM");
-	          
-	          currSong.scaleType = (ScaleType) savedInstanceState.getSerializable("SCALETYPE");
-	          currSong.key = (Pitch) savedInstanceState.getSerializable("KEY");
-	          
-	          currSong.chordInstrument = (MidiProgram) savedInstanceState.getSerializable("CHORDINSTRUMENT");
-	          currSong.melodyInstrument = (MidiProgram) savedInstanceState.getSerializable("MELODYINSTRUMENT");
-	          
-	          updateDisplay();
-	          // Probably need to do a bit of checking if we are currently playing a song. As it is,
-	          // I think we lost the media player. Maybe need to restore this somehow.
-	          //createTempMidi();
-	          playButton.setEnabled(true);
-	          saveButton.setEnabled(true);
-          }
-    }
-*/
+		super.onSaveInstanceState(savedInstanceState);
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) 
+	{
+		// Restore state on certain changes, such as screen rotation
+		super.onRestoreInstanceState(savedInstanceState);
+
+		String json = savedInstanceState.getString("SONG");
+		
+		Gson gson = new Gson();
+		currSong = gson.fromJson(json, Song.class);
+		
+		if (currSong != null)
+		{
+			updateDisplay();
+			songGenButton.setEnabled(true);
+			saveButton.setEnabled(true);
+			playButton.setEnabled(true);
+			playButton.setText(getResources().getString(R.string.play_song));
+		}
+		
+		// CharSequence displayText = savedInstanceState.getCharSequence("DISPLAYTEXT");
+		// songStructureView.setText(savedInstanceState.getCharSequence("DISPLAYTEXT"));
+
+		// if(displayText.length() > 0)
+		// {
+		// songStructureView.setText(displayText);
+		// songGenButton.setEnabled(true);
+		// saveButton.setEnabled(true);
+		// playButton.setEnabled(true);
+		// playButton.setText(getResources().getString(R.string.play_song));
+		// }
+	}
 	
 	// TODO: Make a settings menu
 //	@Override
@@ -355,12 +293,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		if (currSong == null)
 			return;
 		
-		String displayString = "Time Signature: ";
-		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
-		displayString = displayString + "\nTempo: " + currSong.tempo + " BPM";
-		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
-		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
-		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
+		String displayString = "";
+//		displayString += "Time Signature: ";
+//		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
+//		displayString = displayString + "\nTempo: " + currSong.tempo + " BPM";
+//		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
+//		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
+//		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
 		displayString = displayString + "\n" + currSong.structure.toString();
 		displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
 		displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
@@ -379,6 +318,21 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
 		
 		songStructureView.setText(displayString);
+		
+		// Set new control values
+		setSpinnerValue(timeSigNumSpin, (Integer)currSong.timeSigNum);
+		
+		setSpinnerValue(timeSigDenomSpin, (Integer)currSong.timeSigDenom);
+		
+		setSpinnerValue(pitchSpin, currSong.key);
+		
+		setSpinnerValue(modeSpin, currSong.scaleType);
+		
+		setSpinnerValue(insChordSpin, currSong.chordInstrument);
+		
+		setSpinnerValue(insMelodySpin, currSong.melodyInstrument);
+		
+		tempoValue.setText(currSong.tempo + "");
 	}
 	
 	public void showError(String message)
@@ -523,6 +477,51 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	public void onCancelSaveDialog(SaveFileDialogFragment dialog){
 		saveFileName = "";
 	}
+	
+	//UTILS:
+	// @TODO: Put these in their own class at some point
+	public List<Integer> convertIntArray(int[] src)
+	{
+		List<Integer> dest = new ArrayList<Integer>();
+		
+		for (int val : src)
+		{
+			dest.add((Integer)val);
+		}
+		
+		return dest;
+	}
 
+	protected <T> void initSpinnerFromList(Spinner spinner, List<T> list)
+	{
+		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, android.R.layout.simple_spinner_item, list);
+		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(newAdapter);
+		spinner.setOnItemSelectedListener(this);
+		//spinner.setClickable(false);
+	}
+	
+	protected <T> void initSpinnerFromArray(Spinner spinner, T[] array)
+	{
+		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, android.R.layout.simple_spinner_item, array);
+		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(newAdapter);
+		spinner.setOnItemSelectedListener(this);
+		//spinner.setClickable(false);
+	}
+	
+	protected boolean setSpinnerValue(Spinner spinner, Object value)
+	{
+		boolean bFound = false;
+		ArrayAdapter<Object> adapter = (ArrayAdapter<Object>)spinner.getAdapter();
+		int ndx = adapter.getPosition(value);
+		if (ndx >= 0)
+		{
+			spinner.setSelection(ndx);
+			bFound = true;
+		}
+		
+		return bFound;
+	}
 
 }
