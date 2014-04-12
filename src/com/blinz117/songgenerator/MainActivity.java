@@ -8,9 +8,12 @@ import java.util.List;
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
 import com.blinz117.songbuilder.songstructure.*;
+import com.blinz117.songbuilder.songstructure.MusicStructure.Pitch;
+import com.blinz117.songbuilder.songstructure.MusicStructure.ScaleType;
 import com.google.gson.Gson;
 
 import com.leff.midi.*;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
@@ -36,6 +39,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	EditText tempoValue;
 	
+	ToggleButton keyToggle;
+	ToggleButton insChordToggle;
+	ToggleButton insMelodyToggle;
+	//boolean useRandKey;
+	//boolean useRandChordIns;
+	//boolean useRandMelodyIns;
+	
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
@@ -51,6 +61,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	String saveFileName;
 	
+	boolean needMIDIRefresh;
+	
 	final List<Integer> timeSigNumVals = convertIntArray(MusicStructure.TIMESIGNUMVALUES);
 	final List<Integer> timeSigDenomVals = convertIntArray(MusicStructure.TIMESIGDENOMVALUES);
 	
@@ -62,6 +74,15 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		keyToggle = (ToggleButton)findViewById(R.id.randKeyToggle);
+		keyToggle.setChecked(true);
+		
+		insChordToggle = (ToggleButton)findViewById(R.id.randChordInsToggle);
+		insChordToggle.setChecked(true);
+		
+		insMelodyToggle = (ToggleButton)findViewById(R.id.randMelodyInsToggle);
+		insMelodyToggle.setChecked(true);
 		
 		// Set up adapter and listener for spinners
 		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNumerSpinner);
@@ -113,6 +134,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		saveFileName = "";
 		
 		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		
+		needMIDIRefresh = false;
 	}
 
 	// temporary versions that just save and restore the display text. The
@@ -126,6 +149,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		// savedInstanceState.putCharSequence("DISPLAYTEXT", songStructureView.getText());
 		Gson gson = new Gson();
 		savedInstanceState.putString("SONG", gson.toJson(currSong));
+		
+		savedInstanceState.putBoolean("REFRESHMIDI", needMIDIRefresh);
 
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -149,6 +174,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			playButton.setEnabled(true);
 			playButton.setText(getResources().getString(R.string.play_song));
 		}
+		
+		needMIDIRefresh = savedInstanceState.getBoolean("REFRESHMIDI");
 		
 		// CharSequence displayText = savedInstanceState.getCharSequence("DISPLAYTEXT");
 		// songStructureView.setText(savedInstanceState.getCharSequence("DISPLAYTEXT"));
@@ -190,6 +217,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				mediaPlayer.stop();
 				onCompletion(mediaPlayer);
 				return;
+			}
+			
+			// recreate the song in case user changed any parameters
+			if (needMIDIRefresh)
+			{
+				createTempMidi();
+				needMIDIRefresh = false;
 			}
 			
 			FileInputStream midiStream;
@@ -250,10 +284,103 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	        }
 	    }
 	};
+	
+//	public void onKeyToggleClicked(View view) {
+//	    boolean useRandKey = ((ToggleButton) view).isChecked();
+//	    //pitchSpin.setClickable(!useRandKey);
+//	    //modeSpin.setClickable(!useRandKey);
+//	    
+//	    if (useRandKey)
+//	    {
+//		    songWriter.setKey(null);
+//		    songWriter.setScaleType(null);
+//	    }
+//	    else
+//	    {
+//	    	Pitch key = (Pitch)pitchSpin.getSelectedItem();
+//	    	ScaleType mode = (ScaleType)modeSpin.getSelectedItem();
+//	    	
+//			if (currSong != null)
+//			{
+//				currSong.key = key;
+//				currSong.scaleType = mode;
+//			}
+//		    songWriter.setKey(key);
+//		    songWriter.setScaleType(mode);
+//	    }
+//	}
+//	
+//	public void onChordInsToggleClicked(View view) {
+//	    boolean useRandChordIns = ((ToggleButton) view).isChecked();
+//	    //insChordSpin.setClickable(!useRandChordIns);
+//	    
+//	    if (useRandChordIns)
+//	    	songWriter.setChordInstrument(null);
+//	}
+//	
+//	public void onMelodyInsToggleClicked(View view) {
+//		boolean useRandMelodyIns = ((ToggleButton) view).isChecked();
+//		//insMelodySpin.setClickable(!useRandMelodyIns);
+//		
+//		if (useRandMelodyIns)
+//			songWriter.setMelodyInstrument(null);
+//	}
+	
+	public void onRandomToggleClicked(View view) {
+		syncControlSettings(false);
+	}
+	
+	private void syncControlSettings()
+	{
+		syncControlSettings(true);
+	}
+	
+	private void syncControlSettings(boolean updateCurrSong)
+	{
+		updateCurrSong &= (currSong != null);
+		
+    	Pitch key = (Pitch)pitchSpin.getSelectedItem();
+    	ScaleType mode = (ScaleType)modeSpin.getSelectedItem();
+		MidiProgram insChord = (MidiProgram)insChordSpin.getSelectedItem();
+		MidiProgram insMelody = (MidiProgram)insMelodySpin.getSelectedItem();	
+	    
+	    if (keyToggle.isChecked())
+	    {
+		    songWriter.setKey(null);
+		    songWriter.setScaleType(null);
+	    }
+	    else
+	    {
+			songWriter.setKey(key);
+			songWriter.setScaleType(mode);
+	    }
+	    
+	    if (insChordToggle.isChecked())
+	    	songWriter.setChordInstrument(null);
+	    else
+			songWriter.setChordInstrument(insChord);
+	    
+	    if (insMelodyToggle.isChecked())
+	    	songWriter.setMelodyInstrument(null);
+	    else
+			songWriter.setMelodyInstrument(insMelody);
+	    
+	    if (updateCurrSong)
+		{
+			currSong.key = key;
+			currSong.scaleType = mode;
+			currSong.chordInstrument = insChord;
+			currSong.melodyInstrument = insMelody;
+
+	    	needMIDIRefresh = true;
+		}
+		
+	}
 
 	@Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
 	{
+		syncControlSettings();
 /*		
  * 		Removing this temporarily. Just randomly generate until I add more customization later
  * 
@@ -263,6 +390,69 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			songWriter.setTimeSigNumerator(Integer.parseInt(value));
 		else if (spinner.getId() == R.id.timeSigDenom)
 			songWriter.setTimeSigDenominator(Integer.parseInt(value));*/
+		
+		// Update both the current song in case the user plays it again and the
+		// SongWriter for writing another song
+//		boolean updateSong = (currSong != null);
+//		boolean modified = false;
+//		
+//		Spinner spinner = (Spinner) parent;
+//		Object value = parent.getItemAtPosition(pos);//.toString();
+//		if (spinner.getId() == R.id.pitchSpinner)
+//		{
+//			MusicStructure.Pitch key = (MusicStructure.Pitch)value;
+//			if (updateSong)
+//				currSong.key = key;
+//			
+//			// doing random right now
+//			if (!keyToggle.isChecked() && key != songWriter.getKey())
+//			{
+//				songWriter.setKey(key);
+//				modified = true;
+//			}
+//		}
+//		else if (spinner.getId() == R.id.modeSpinner)
+//		{
+//			MusicStructure.ScaleType mode = (MusicStructure.ScaleType)value;
+//			if (updateSong)
+//				currSong.scaleType = mode;
+//			
+//			// doing random right now
+//			if (keyToggle.isChecked() && mode != songWriter.getScaleType())
+//			{
+//				songWriter.setScaleType(mode);
+//				modified = true;
+//			}
+//		}
+//		else if (spinner.getId() == R.id.insChordSpinner)
+//		{			
+//			MidiProgram ins = (MidiProgram)value;
+//			if (updateSong)
+//				currSong.chordInstrument = ins;
+//			
+//			if (insChordToggle.isChecked() && ins != songWriter.getChordInstrument())
+//			{
+//				songWriter.setChordInstrument(ins);
+//				modified = true;
+//			}
+//		}
+//		else if (spinner.getId() == R.id.insMelodySpinner)
+//		{			
+//			MidiProgram ins = (MidiProgram)value;
+//			if (updateSong)
+//				currSong.melodyInstrument = ins;
+//			
+//			if (insMelodyToggle.isChecked() && ins != songWriter.getMelodyInstrument())
+//			{
+//				songWriter.setMelodyInstrument(ins);
+//				modified = true;
+//			}
+//		}
+//		else
+//			return;
+//		
+//		if (updateSong && modified)
+//			needMIDIRefresh = true;
     }
 
 	@Override
@@ -491,6 +681,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		return dest;
 	}
+	
+	
 
 	protected <T> void initSpinnerFromList(Spinner spinner, List<T> list)
 	{
@@ -517,7 +709,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		int ndx = adapter.getPosition(value);
 		if (ndx >= 0)
 		{
-			spinner.setSelection(ndx);
+			spinner.setSelection(ndx, false);
 			bFound = true;
 		}
 		

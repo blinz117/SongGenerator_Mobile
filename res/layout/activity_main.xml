@@ -74,62 +74,6 @@
                 tools:listitem="@android:layout/simple_spinner_item" />
         </LinearLayout>
 
-        <!-- <TextView -->
-        <!-- android:id="@+id/timeSigPrompt" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_alignParentLeft="true" -->
-        <!-- android:layout_below="@+id/songGen" -->
-        <!-- android:text="Time Signature" /> -->
-
-
-        <!-- <TextView -->
-        <!-- android:id="@+id/timeSigSlash" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_alignTop="@+id/timeSigPrompt" -->
-        <!-- android:layout_toRightOf="@+id/timeSigNumerSpinner" -->
-        <!-- android:text="/" /> -->
-
-
-        <!-- <Spinner -->
-        <!-- android:id="@+id/timeSigNumerSpinner" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_alignBaseline="@+id/timeSigPrompt" -->
-        <!-- android:layout_alignBottom="@+id/timeSigPrompt" -->
-        <!-- android:layout_toRightOf="@+id/timeSigPrompt" -->
-        <!-- tools:listitem="@android:layout/simple_spinner_item" /> -->
-
-
-        <!-- <Spinner -->
-        <!-- android:id="@+id/timeSigDenomSpinner" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_alignBaseline="@+id/timeSigSlash" -->
-        <!-- android:layout_alignBottom="@+id/timeSigSlash" -->
-        <!-- android:layout_toRightOf="@+id/timeSigNumerSpinner" -->
-        <!-- tools:listitem="@android:layout/simple_spinner_item" /> -->
-
-
-        <!-- <EditText -->
-        <!-- android:id="@+id/tempoVal" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_alignParentLeft="true" -->
-        <!-- android:layout_below="@+id/timeSigRow" -->
-        <!-- android:inputType="number" /> -->
-
-
-        <!-- <TextView -->
-        <!-- android:id="@+id/tempoPrompt" -->
-        <!-- android:layout_width="wrap_content" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_toRightOf="@+id/tempoVal" -->
-        <!-- android:layout_alignBaseline="@+id/tempoVal" -->
-        <!-- android:layout_alignBottom="@+id/tempoVal" -->
-        <!-- android:text="bpm" /> -->
-
         <LinearLayout
             android:id="@+id/tempoRow"
             android:layout_width="wrap_content"
@@ -178,6 +122,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 tools:listitem="@android:layout/simple_spinner_item" />
+
+            <ToggleButton
+                android:id="@+id/randKeyToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRandomToggleClicked"
+                android:text="ToggleButton" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -200,6 +152,13 @@
                 android:layout_weight="1"
                 tools:listitem="@android:layout/simple_spinner_item" />
 
+            <ToggleButton
+                android:id="@+id/randChordInsToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ToggleButton"
+                android:onClick="onRandomToggleClicked" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -221,6 +180,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 tools:listitem="@android:layout/simple_spinner_item" />
+
+            <ToggleButton
+                android:id="@+id/randMelodyInsToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ToggleButton"
+                android:onClick="onRandomToggleClicked" />
 
         </LinearLayout>
 
