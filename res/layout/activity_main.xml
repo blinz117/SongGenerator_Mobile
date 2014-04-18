@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <RelativeLayout
+   <RelativeLayout
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -126,9 +126,8 @@
             <ToggleButton
                 android:id="@+id/randKeyToggle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onRandomToggleClicked"
-                android:text="ToggleButton" />
+                android:layout_height="32dp"
+                android:onClick="onRandomToggleClicked" />
 
         </LinearLayout>
 
@@ -155,8 +154,7 @@
             <ToggleButton
                 android:id="@+id/randChordInsToggle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ToggleButton"
+                android:layout_height="32dp"
                 android:onClick="onRandomToggleClicked" />
 
         </LinearLayout>
@@ -184,20 +182,27 @@
             <ToggleButton
                 android:id="@+id/randMelodyInsToggle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ToggleButton"
+                android:layout_height="32dp"
                 android:onClick="onRandomToggleClicked" />
 
         </LinearLayout>
 
+        <fragment
+            android:id="@+id/songGridFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            class="com.blinz117.songgenerator.SongViewFragment"
+            tools:layout="@layout/song_view_layout"
+            android:layout_below="@+id/insMelodyRow" />
+                
         <TextView
             android:id="@+id/songStructure"
             style="@style/DefaultTextColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/insMelodyRow" />
-
+            android:layout_below="@+id/songGridFragment" />
+        
     </RelativeLayout>
 
 </ScrollView>

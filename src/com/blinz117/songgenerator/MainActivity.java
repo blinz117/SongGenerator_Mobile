@@ -30,6 +30,8 @@ import android.support.v4.app.*;
 
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener{
 
+	SongViewFragment songViewFrag;
+	
 	Spinner timeSigNumSpin;
 	Spinner timeSigDenomSpin;
 	Spinner pitchSpin;
@@ -74,6 +76,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		FragmentManager fm = getSupportFragmentManager();
+		songViewFrag = (SongViewFragment)fm.findFragmentById(R.id.songGridFragment);
 		
 		keyToggle = (ToggleButton)findViewById(R.id.randKeyToggle);
 		keyToggle.setChecked(true);
@@ -256,12 +261,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			}
 			catch (Exception e) 
 			{ 
-				Context context = getApplicationContext();
-				CharSequence text = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
-				int duration = Toast.LENGTH_SHORT;
-
-				Toast toast = Toast.makeText(context, text, duration);
-				toast.show();
+//				Context context = getApplicationContext();
+				String errText = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
+//				int duration = Toast.LENGTH_SHORT;
+//
+//				Toast toast = Toast.makeText(context, text, duration);
+//				toast.show();
+				showError(errText);
 			}
 			
 		}
@@ -491,7 +497,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
 //		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
 		displayString = displayString + "\n" + currSong.structure.toString();
-		displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
+		//displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
 		displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
 		displayString = displayString + "\nBridge: " + currSong.bridgeProgression.getChords();
 		
@@ -504,7 +510,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		//displayString += "\nMelody: " + currSong.melody;
 		
-		displayString += "\nVerse Notes: " + currSong.verseProgression.getNotes();//.melody;
+		//displayString += "\nVerse Notes: " + currSong.verseProgression.getNotes();//.melody;
 		displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
 		
 		songStructureView.setText(displayString);
@@ -523,6 +529,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		setSpinnerValue(insMelodySpin, currSong.melodyInstrument);
 		
 		tempoValue.setText(currSong.tempo + "");
+		
+		songViewFrag.setSong(currSong);
 	}
 	
 	public void showError(String message)
