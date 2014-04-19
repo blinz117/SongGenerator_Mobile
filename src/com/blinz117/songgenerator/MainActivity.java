@@ -694,7 +694,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 
 	protected <T> void initSpinnerFromList(Spinner spinner, List<T> list)
 	{
-		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, android.R.layout.simple_spinner_item, list);
+		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, R.layout.default_spinner_item, list);
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(newAdapter);
 		spinner.setOnItemSelectedListener(this);
@@ -703,7 +703,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	protected <T> void initSpinnerFromArray(Spinner spinner, T[] array)
 	{
-		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, android.R.layout.simple_spinner_item, array);
+		ArrayAdapter<T> newAdapter = new ArrayAdapter<T>(this, R.layout.default_spinner_item, array);
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(newAdapter);
 		spinner.setOnItemSelectedListener(this);
