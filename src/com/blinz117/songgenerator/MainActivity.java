@@ -28,7 +28,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 import android.support.v4.app.*;
 
-public class MainActivity extends FragmentActivity implements OnItemSelectedListener, OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener{
+public class MainActivity extends FragmentActivity implements OnItemSelectedListener, 
+		OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
 
 	SongViewFragment songViewFrag;
 	
@@ -724,4 +725,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		return bFound;
 	}
 
+	@Override
+	public void onSongChanged(Song newSong) {
+		currSong = newSong;
+		needMIDIRefresh = true;
+		updateDisplay();
+	}
 }
