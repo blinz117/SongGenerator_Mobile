@@ -5,6 +5,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.blinz117.fluiddroid.*;
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
 import com.blinz117.songbuilder.songstructure.*;
@@ -31,6 +32,9 @@ import android.support.v4.app.*;
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, 
 		OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
 
+	FluidDroidSynth synth;
+	boolean bIsPlaying;
+	
 	SongViewFragment songViewFrag;
 	
 	Spinner timeSigNumSpin;
@@ -75,6 +79,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
+		synth = new FluidDroidSynth();
+		synth.startSynth();
+		bIsPlaying = false;
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
@@ -142,6 +150,14 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		
 		needMIDIRefresh = false;
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		
+		synth.destroy();
 	}
 
 	// temporary versions that just save and restore the display text. The
@@ -218,10 +234,19 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	View.OnClickListener onPlaySong = new View.OnClickListener() {
 		public void onClick(View view)
 		{			
-			if (mediaPlayer.isPlaying())
+			if (bIsPlaying)
 			{
-				mediaPlayer.stop();
-				onCompletion(mediaPlayer);
+				synth.stopPlaying();
+				bIsPlaying = false;
+				
+//				mediaPlayer.stop();
+//				onCompletion(mediaPlayer);
+				
+				songGenButton.setEnabled(true);
+				saveButton.setEnabled(true);
+				//playButton.setEnabled(true);
+				playButton.setText(getResources().getString(R.string.play_song));
+				
 				return;
 			}
 			
@@ -232,44 +257,53 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				needMIDIRefresh = false;
 			}
 			
-			FileInputStream midiStream;
-			try 
-			{
-				midiStream = openFileInput(getResources().getString(R.string.temp_midi));
-				FileDescriptor fd = midiStream.getFD();
-				mediaPlayer.setDataSource( fd );
-				mediaPlayer.prepare();
-				
-				// now that MediaPlayer is ready, request audio focus
-				// Request audio focus for playback
-				int result = am.requestAudioFocus(afChangeListener,
-				                                 // Use the music stream.
-				                                 AudioManager.STREAM_MUSIC,
-				                                 // Request permanent focus.
-				                                 AudioManager.AUDIOFOCUS_GAIN);
-				   
-				if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
-				{
-					showError("Could not gain audio focus!");
-					return;
-				}
-				
-				mediaPlayer.start();
-				
-				playButton.setText(getResources().getString(R.string.stop_play));
-				saveButton.setEnabled(false);
-				songGenButton.setEnabled(false);
-			}
-			catch (Exception e) 
-			{ 
-//				Context context = getApplicationContext();
-				String errText = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
-//				int duration = Toast.LENGTH_SHORT;
-//
-//				Toast toast = Toast.makeText(context, text, duration);
-//				toast.show();
-				showError(errText);
-			}
+			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
+			synth.playMIDIFile(tempMidiPath);
+			playButton.setText(getResources().getString(R.string.stop_play));
+			saveButton.setEnabled(false);
+			songGenButton.setEnabled(false);
+			
+			bIsPlaying = true;
+			
+			
+//			FileInputStream midiStream;
+//			try 
+//			{
+//				midiStream = openFileInput(getResources().getString(R.string.temp_midi));
+//				FileDescriptor fd = midiStream.getFD();
+//				mediaPlayer.setDataSource( fd );
+//				mediaPlayer.prepare();
+//				
+//				// now that MediaPlayer is ready, request audio focus
+//				// Request audio focus for playback
+//				int result = am.requestAudioFocus(afChangeListener,
+//				                                 // Use the music stream.
+//				                                 AudioManager.STREAM_MUSIC,
+//				                                 // Request permanent focus.
+//				                                 AudioManager.AUDIOFOCUS_GAIN);
+//				   
+//				if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+//				{
+//					showError("Could not gain audio focus!");
+//					return;
+//				}
+//				
+//				mediaPlayer.start();
+//				
+//				playButton.setText(getResources().getString(R.string.stop_play));
+//				saveButton.setEnabled(false);
+//				songGenButton.setEnabled(false);
+//			}
+//			catch (Exception e) 
+//			{ 
+////				Context context = getApplicationContext();
+//				String errText = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
+////				int duration = Toast.LENGTH_SHORT;
+////
+////				Toast toast = Toast.makeText(context, text, duration);
+////				toast.show();
+//				showError(errText);
+//			}
 			
 		}
 	};
