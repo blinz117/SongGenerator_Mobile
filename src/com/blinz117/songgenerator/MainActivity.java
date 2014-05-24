@@ -80,7 +80,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		synth = new FluidDroidSynth();
-		synth.startSynth();
+		//synth.startSynth();
 		bIsPlaying = false;
 		
 		super.onCreate(savedInstanceState);
