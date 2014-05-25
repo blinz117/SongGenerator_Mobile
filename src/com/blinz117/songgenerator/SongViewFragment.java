@@ -27,12 +27,9 @@ public class SongViewFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
         try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
             mListener = (SongChangedListener) activity;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
                     + " must implement SongChangedListener");
         }
@@ -62,7 +59,6 @@ public class SongViewFragment extends Fragment {
 	    			mListener.onSongChanged(currSong);
 	    			return;
         		}
-        		
         	}
         }
     };
@@ -79,7 +75,6 @@ public class SongViewFragment extends Fragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.song_view_layout, container, false);
         
         songBlockContainer = (LinearLayout)view.findViewById(R.id.songBlockContainer);
