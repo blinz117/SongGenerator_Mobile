@@ -56,7 +56,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
-	Button saveButton;
+	//Button saveButton;
 	
 	SongWriter songWriter;
 	Song currSong;
@@ -129,13 +129,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		playButton = (Button)findViewById(R.id.songPlay);
 		playButton.setOnClickListener(onPlaySong);
 		
-		saveButton = (Button)findViewById(R.id.songSave);
-		saveButton.setOnClickListener(new View.OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				showSaveDialog();
-			}
-		});
+//		saveButton = (Button)findViewById(R.id.songSave);
+//		saveButton.setOnClickListener(new View.OnClickListener(){
+//			@Override
+//			public void onClick(View v) {
+//				showSaveDialog();
+//			}
+//		});
 		
 		songWriter = new SongWriter();
 		currSong = null;
@@ -192,7 +192,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		{
 			updateDisplay();
 			songGenButton.setEnabled(true);
-			saveButton.setEnabled(true);
+//			saveButton.setEnabled(true);
 			playButton.setEnabled(true);
 			playButton.setText(getResources().getString(R.string.play_song));
 		}
@@ -212,13 +212,23 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		// }
 	}
 	
-	// TODO: Make a settings menu
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.action_save:
+	        	showSaveDialog();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
 	
 	View.OnClickListener onSongGenerate = new View.OnClickListener() {
 		public void onClick(View view)
@@ -227,7 +237,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			updateDisplay();
 			createTempMidi();
 			playButton.setEnabled(true);
-			saveButton.setEnabled(true);
+//			saveButton.setEnabled(true);
 		}
 	};
 	
@@ -243,7 +253,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //				onCompletion(mediaPlayer);
 				
 				songGenButton.setEnabled(true);
-				saveButton.setEnabled(true);
+//				saveButton.setEnabled(true);
 				//playButton.setEnabled(true);
 				playButton.setText(getResources().getString(R.string.play_song));
 				
@@ -260,7 +270,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
 			synth.playMIDIFile(tempMidiPath);
 			playButton.setText(getResources().getString(R.string.stop_play));
-			saveButton.setEnabled(false);
+//			saveButton.setEnabled(false);
 			songGenButton.setEnabled(false);
 			
 			bIsPlaying = true;
@@ -509,7 +519,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		am.abandonAudioFocus(afChangeListener);
 		
 		songGenButton.setEnabled(true);
-		saveButton.setEnabled(true);
+//		saveButton.setEnabled(true);
 		//playButton.setEnabled(true);
 		playButton.setText(getResources().getString(R.string.play_song));
 		
