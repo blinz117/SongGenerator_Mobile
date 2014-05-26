@@ -30,7 +30,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.support.v4.app.*;
 
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, 
-		OnCompletionListener, SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
+		SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
 
 	FluidDroidSynth synth;
 	boolean bIsPlaying;
@@ -49,14 +49,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	ToggleButton keyToggle;
 	ToggleButton insChordToggle;
 	ToggleButton insMelodyToggle;
-	//boolean useRandKey;
-	//boolean useRandChordIns;
-	//boolean useRandMelodyIns;
 	
 	Button songGenButton;
 	TextView songStructureView;
 	Button playButton;
-	//Button saveButton;
 	
 	SongWriter songWriter;
 	Song currSong;
@@ -64,7 +60,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	MidiFile midiSong;
 	
 	AudioManager am;
-	MediaPlayer mediaPlayer;
 	
 	String saveFileName;
 	
@@ -80,7 +75,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		synth = new FluidDroidSynth();
-		//synth.startSynth();
 		bIsPlaying = false;
 		
 		super.onCreate(savedInstanceState);
@@ -129,21 +123,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		playButton = (Button)findViewById(R.id.songPlay);
 		playButton.setOnClickListener(onPlaySong);
 		
-//		saveButton = (Button)findViewById(R.id.songSave);
-//		saveButton.setOnClickListener(new View.OnClickListener(){
-//			@Override
-//			public void onClick(View v) {
-//				showSaveDialog();
-//			}
-//		});
-		
 		songWriter = new SongWriter();
 		currSong = null;
 		
 		midiSong = null;
-		
-		mediaPlayer = new MediaPlayer();
-		mediaPlayer.setOnCompletionListener(this);
 		
 		saveFileName = "";
 		
@@ -237,7 +220,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			updateDisplay();
 			createTempMidi();
 			playButton.setEnabled(true);
-//			saveButton.setEnabled(true);
 		}
 	};
 	
@@ -249,11 +231,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				synth.stopPlaying();
 				bIsPlaying = false;
 				
-//				mediaPlayer.stop();
-//				onCompletion(mediaPlayer);
+				// Abandon audio focus   
+				am.abandonAudioFocus(afChangeListener);
+				
 				
 				songGenButton.setEnabled(true);
-//				saveButton.setEnabled(true);
 				//playButton.setEnabled(true);
 				playButton.setText(getResources().getString(R.string.play_song));
 				
@@ -267,10 +249,22 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				needMIDIRefresh = false;
 			}
 			
+			// Request audio focus for playback
+			int result = am.requestAudioFocus(afChangeListener,
+			                                 // Use the music stream.
+			                                 AudioManager.STREAM_MUSIC,
+			                                 // Request permanent focus.
+			                                 AudioManager.AUDIOFOCUS_GAIN);
+			   
+			if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+			{
+				showError("Could not gain audio focus!");
+				return;
+			}
+			
 			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
 			synth.playMIDIFile(tempMidiPath);
 			playButton.setText(getResources().getString(R.string.stop_play));
-//			saveButton.setEnabled(false);
 			songGenButton.setEnabled(false);
 			
 			bIsPlaying = true;
@@ -322,16 +316,15 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    public void onAudioFocusChange(int focusChange) {
 	        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
 	        {
-	            if (mediaPlayer.isPlaying()) mediaPlayer.pause();
+	        	synth.setStereoVolume(0.25f, 0.25f);
 	        } 
 	        else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) 
 	        {
-	            mediaPlayer.start();
+	        	synth.setStereoVolume(1.0f, 1.0f);
 	        } 
 	        else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) 
 	        {
-	        	if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-	        	onCompletion(mediaPlayer);
+	        	synth.stopPlaying();
 	        }
 	    }
 	};
@@ -509,21 +502,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	@Override
     public void onNothingSelected(AdapterView<?> parent) {
 		//Nothing to do as far as I can tell
-	}
-
-	@Override
-	public void onCompletion(MediaPlayer mp) {
-		// Clean up when mediaPlayer stops/is stopped
-		
-		// Abandon audio focus   
-		am.abandonAudioFocus(afChangeListener);
-		
-		songGenButton.setEnabled(true);
-//		saveButton.setEnabled(true);
-		//playButton.setEnabled(true);
-		playButton.setText(getResources().getString(R.string.play_song));
-		
-		mp.reset();
 	}
 	
 	/*
