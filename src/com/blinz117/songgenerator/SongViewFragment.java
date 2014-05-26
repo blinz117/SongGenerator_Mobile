@@ -1,7 +1,5 @@
 package com.blinz117.songgenerator;
 
-import java.util.ArrayList;
-
 import com.blinz117.songbuilder.songstructure.*;
 
 import android.app.Activity;
@@ -9,14 +7,18 @@ import android.content.Context;
 import android.os.*;
 import android.support.v4.app.Fragment;
 import android.view.*;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class SongViewFragment extends Fragment {
+public class SongViewFragment extends Fragment implements OnItemSelectedListener {
 
 	private Song currSong;
-	private LinearLayout songBlockContainer;
+	private GridView songBlockContainer;
+	private Spinner songPartSpinner;
+
+    private String[] partList = {"Verse + Chorus", "Verse", "Chorus"};
+    
+    SongBlockAdapter songBlocks;
 	
 	public interface SongChangedListener{
 		public void onSongChanged(Song newSong);
@@ -35,33 +37,33 @@ public class SongViewFragment extends Fragment {
         }
     }
 	
-	private final OnClickListener onSongBlockClickedListener = new OnClickListener() {
-        public void onClick(final View v) {
-        	int chordNdx = songBlockContainer.indexOfChild(v);
-        	ChordProgression currProg = currSong.verseProgression;
-        	int ndxTracker = -1;
-        	for (int patternNdx = 0; patternNdx < currProg.patterns.size(); patternNdx++ )
-        	{
-        		Pattern currPattern = currProg.patterns.get(patternNdx);
-        		// check if the chord corresponding to the button we clicked on is
-        		// in this pattern or not
-        		if (chordNdx > ndxTracker + currPattern.getChords().size())
-        		{
-        			ndxTracker += currPattern.getChords().size();
-        		}
-        		else
-        		{
-	    			int localNdx = chordNdx - ndxTracker - 1;
-	    			Integer currValue = currPattern.getChords().get(localNdx);
-	    			Integer newValue = (currValue % 7) + 1;
-	    			currPattern.chords.set(localNdx, newValue);
-	    			
-	    			mListener.onSongChanged(currSong);
-	    			return;
-        		}
-        	}
-        }
-    };
+//	private final OnClickListener onSongBlockClickedListener = new OnClickListener() {
+//        public void onClick(final View v) {
+//        	int chordNdx = songBlockContainer.indexOfChild(v);
+//        	ChordProgression currProg = currSong.verseProgression;
+//        	int ndxTracker = -1;
+//        	for (int patternNdx = 0; patternNdx < currProg.patterns.size(); patternNdx++ )
+//        	{
+//        		Pattern currPattern = currProg.patterns.get(patternNdx);
+//        		// check if the chord corresponding to the button we clicked on is
+//        		// in this pattern or not
+//        		if (chordNdx > ndxTracker + currPattern.getChords().size())
+//        		{
+//        			ndxTracker += currPattern.getChords().size();
+//        		}
+//        		else
+//        		{
+//	    			int localNdx = chordNdx - ndxTracker - 1;
+//	    			Integer currValue = currPattern.getChords().get(localNdx);
+//	    			Integer newValue = (currValue % 7) + 1;
+//	    			currPattern.chords.set(localNdx, newValue);
+//	    			
+//	    			mListener.onSongChanged(currSong);
+//	    			return;
+//        		}
+//        	}
+//        }
+//    };
 	
 	
 	@Override
@@ -77,7 +79,18 @@ public class SongViewFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.song_view_layout, container, false);
         
-        songBlockContainer = (LinearLayout)view.findViewById(R.id.songBlockContainer);
+        songBlockContainer = (GridView)view.findViewById(R.id.songBlockContainer);
+        
+        Context context = songBlockContainer.getContext();
+        
+        songBlocks = new SongBlockAdapter(context);
+        songBlockContainer.setAdapter(songBlocks);
+        
+        songPartSpinner = (Spinner)view.findViewById(R.id.songPartSpinner);
+		ArrayAdapter<String> newAdapter = new ArrayAdapter<String>(context, R.layout.default_spinner_item, partList);
+		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		songPartSpinner.setAdapter(newAdapter);
+		songPartSpinner.setOnItemSelectedListener(this);
         
         return view;
     }
@@ -87,25 +100,51 @@ public class SongViewFragment extends Fragment {
 		currSong = newSong;
 		
 		// first, clear out container
-		songBlockContainer.removeAllViews();
+		//songBlockContainer.removeAllViews();
 		
-		//update view
-		Context context = songBlockContainer.getContext();
+//		//update view
+//		Context context = songBlockContainer.getContext();
 		
-		ArrayList<Integer> chords = currSong.verseProgression.getChords();
-		ArrayList<ArrayList<Note>> notes = currSong.verseProgression.getNotes();
-		for (int ndx = 0; ndx < chords.size(); ndx++)
+		songPartSpinner.setSelection(0);
+		songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
+		
+//		ArrayList<Integer> chords = currSong.verseProgression.getChords();
+//		ArrayList<ArrayList<Note>> notes = currSong.verseProgression.getNotes();
+//		for (int ndx = 0; ndx < chords.size(); ndx++)
+//		{
+//			Button songBlock = new Button(context);
+//			songBlock.setLayoutParams(new LayoutParams((int)getResources().getDimension(R.dimen.songBlockWidth), LayoutParams.MATCH_PARENT));//LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+//			songBlock.setText(chords.get(ndx) + "\n" + notes.get(ndx));
+//			songBlock.setTextSize(12);
+//			
+//			songBlock.setOnClickListener(onSongBlockClickedListener);
+//			
+//			songBlockContainer.addView(songBlock);
+//		}
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+		// TODO Auto-generated method stub
+		if (currSong != null)
 		{
-			Button songBlock = new Button(context);
-			songBlock.setLayoutParams(new LayoutParams((int)getResources().getDimension(R.dimen.songBlockWidth), LayoutParams.MATCH_PARENT));//LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			songBlock.setText(chords.get(ndx) + "\n" + notes.get(ndx));
-			songBlock.setTextSize(12);
-			
-			songBlock.setOnClickListener(onSongBlockClickedListener);
-			
-			songBlockContainer.addView(songBlock);
+			if (pos == 0)
+			{
+				songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
+			}
+			else if (pos == 1)
+			{
+				songBlocks.setProgression(currSong.verseProgression);
+			}
+			else
+			{
+				songBlocks.setProgression(currSong.chorusProgression);
+			}
 		}
 	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {}
 	
 //	To include in xml, use:
 //        <fragment
