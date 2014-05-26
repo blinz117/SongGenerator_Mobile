@@ -541,10 +541,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
 //		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
 //		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
-		displayString = displayString + "\n" + currSong.structure.toString();
+		displayString = displayString /*+ "\n"*/ + currSong.structure.toString();
 		//displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
-		displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
-		displayString = displayString + "\nBridge: " + currSong.bridgeProgression.getChords();
+		//displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
+		//displayString = displayString + "\nBridge: " + currSong.bridgeProgression.getChords();
 		
 		/* Don't want to show these for now... 
 		displayString += "\nRhythm1: " + currSong.rhythm1;
@@ -556,7 +556,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		//displayString += "\nMelody: " + currSong.melody;
 		
 		//displayString += "\nVerse Notes: " + currSong.verseProgression.getNotes();//.melody;
-		displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
+		//displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
 		
 		songStructureView.setText(displayString);
 		

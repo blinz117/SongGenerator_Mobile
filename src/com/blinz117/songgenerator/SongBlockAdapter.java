@@ -48,7 +48,7 @@ public class SongBlockAdapter extends BaseAdapter{
         if (convertView == null) {  // if it's not recycled, initialize some attributes
         	songBlock = new Button(mContext);
         	songBlock.setLayoutParams(new GridView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        	songBlock.setPadding(5, 5, 5, 5);
+        	songBlock.setBackgroundResource(R.drawable.song_block_border);
         } else {
         	songBlock = (Button) convertView;
         }

@@ -87,7 +87,7 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
         songBlockContainer.setAdapter(songBlocks);
         
         songPartSpinner = (Spinner)view.findViewById(R.id.songPartSpinner);
-		ArrayAdapter<String> newAdapter = new ArrayAdapter<String>(context, R.layout.default_spinner_item, partList);
+		ArrayAdapter<String> newAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, partList);
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		songPartSpinner.setAdapter(newAdapter);
 		songPartSpinner.setOnItemSelectedListener(this);
