@@ -18,8 +18,6 @@ import com.leff.midi.event.ProgramChange.MidiProgram;
 
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.content.Context;
