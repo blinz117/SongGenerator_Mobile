@@ -21,6 +21,7 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.content.Context;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -30,7 +31,6 @@ import android.support.v4.app.*;
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, 
 		SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
 
-	FluidDroidSynth synth;
 	boolean bIsPlaying;
 	
 	SongViewFragment songViewFrag;
@@ -57,8 +57,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	MidiFile midiSong;
 	
-	AudioManager am;
-	
 	String saveFileName;
 	
 	boolean needMIDIRefresh;
@@ -72,13 +70,19 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
-		synth = new FluidDroidSynth();
-		bIsPlaying = false;
-		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		FragmentManager fm = getSupportFragmentManager();
+		
+		if (savedInstanceState == null)
+		{
+			FragmentTransaction fragTransaction = fm.beginTransaction();
+			fragTransaction.add(new FluidDroidSynthFragment(), "SynthFragment");
+			fragTransaction.commit();
+		}
+		bIsPlaying = false;
+		
 		songViewFrag = (SongViewFragment)fm.findFragmentById(R.id.songGridFragment);
 		
 		keyToggle = (ToggleButton)findViewById(R.id.randKeyToggle);
@@ -128,8 +132,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		saveFileName = "";
 		
-		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		
 		needMIDIRefresh = false;
 	}
 	
@@ -137,13 +139,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		
-		synth.destroy();
 	}
-
-	// temporary versions that just save and restore the display text. The
-	// tempMidi file should already be saved,
-	// so you should still be able to play
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) 
@@ -152,6 +148,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		// savedInstanceState.putCharSequence("DISPLAYTEXT", songStructureView.getText());
 		Gson gson = new Gson();
 		savedInstanceState.putString("SONG", gson.toJson(currSong));
+		
+		savedInstanceState.putBoolean("ISPLAYING", bIsPlaying);
 		
 		savedInstanceState.putBoolean("REFRESHMIDI", needMIDIRefresh);
 
@@ -169,28 +167,26 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		Gson gson = new Gson();
 		currSong = gson.fromJson(json, Song.class);
 		
+		bIsPlaying = savedInstanceState.getBoolean("ISPLAYING");
+		
 		if (currSong != null)
 		{
 			updateDisplay();
-			songGenButton.setEnabled(true);
-//			saveButton.setEnabled(true);
+			
 			playButton.setEnabled(true);
-			playButton.setText(getResources().getString(R.string.play_song));
+			if (!bIsPlaying)
+			{
+				songGenButton.setEnabled(true);
+				playButton.setText(getResources().getString(R.string.play_song));
+			}
+			else
+			{
+				songGenButton.setEnabled(false);
+				playButton.setText(getResources().getString(R.string.stop_play));
+			}
 		}
 		
 		needMIDIRefresh = savedInstanceState.getBoolean("REFRESHMIDI");
-		
-		// CharSequence displayText = savedInstanceState.getCharSequence("DISPLAYTEXT");
-		// songStructureView.setText(savedInstanceState.getCharSequence("DISPLAYTEXT"));
-
-		// if(displayText.length() > 0)
-		// {
-		// songStructureView.setText(displayText);
-		// songGenButton.setEnabled(true);
-		// saveButton.setEnabled(true);
-		// playButton.setEnabled(true);
-		// playButton.setText(getResources().getString(R.string.play_song));
-		// }
 	}
 	
 	@Override
@@ -223,18 +219,20 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	View.OnClickListener onPlaySong = new View.OnClickListener() {
 		public void onClick(View view)
-		{			
+		{		
+
+			
+			FluidDroidSynth synth = getSynth();
+			if (synth == null)
+				return;
+			
 			if (bIsPlaying)
 			{
 				synth.stopPlaying();
 				bIsPlaying = false;
 				
-				// Abandon audio focus   
-				am.abandonAudioFocus(afChangeListener);
-				
-				
 				songGenButton.setEnabled(true);
-				//playButton.setEnabled(true);
+				
 				playButton.setText(getResources().getString(R.string.play_song));
 				
 				return;
@@ -247,126 +245,34 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 				needMIDIRefresh = false;
 			}
 			
-			// Request audio focus for playback
-			int result = am.requestAudioFocus(afChangeListener,
-			                                 // Use the music stream.
-			                                 AudioManager.STREAM_MUSIC,
-			                                 // Request permanent focus.
-			                                 AudioManager.AUDIOFOCUS_GAIN);
-			   
-			if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
+			
+			// Make sure MIDI player started correctly
+			if (!synth.playMIDIFile(tempMidiPath))
 			{
-				showError("Could not gain audio focus!");
+				Log.e("BRYAN", "Failed to start playing MIDI file!");
 				return;
 			}
 			
-			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
-			synth.playMIDIFile(tempMidiPath);
 			playButton.setText(getResources().getString(R.string.stop_play));
 			songGenButton.setEnabled(false);
 			
 			bIsPlaying = true;
 			
-			
-//			FileInputStream midiStream;
-//			try 
-//			{
-//				midiStream = openFileInput(getResources().getString(R.string.temp_midi));
-//				FileDescriptor fd = midiStream.getFD();
-//				mediaPlayer.setDataSource( fd );
-//				mediaPlayer.prepare();
-//				
-//				// now that MediaPlayer is ready, request audio focus
-//				// Request audio focus for playback
-//				int result = am.requestAudioFocus(afChangeListener,
-//				                                 // Use the music stream.
-//				                                 AudioManager.STREAM_MUSIC,
-//				                                 // Request permanent focus.
-//				                                 AudioManager.AUDIOFOCUS_GAIN);
-//				   
-//				if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
-//				{
-//					showError("Could not gain audio focus!");
-//					return;
-//				}
-//				
-//				mediaPlayer.start();
-//				
-//				playButton.setText(getResources().getString(R.string.stop_play));
-//				saveButton.setEnabled(false);
-//				songGenButton.setEnabled(false);
-//			}
-//			catch (Exception e) 
-//			{ 
-////				Context context = getApplicationContext();
-//				String errText = getResources().getString(R.string.error_read_MIDI);//"Oops! Something bad happened trying to find your MIDI file! Here's the message: " + e.getMessage();
-////				int duration = Toast.LENGTH_SHORT;
-////
-////				Toast toast = Toast.makeText(context, text, duration);
-////				toast.show();
-//				showError(errText);
-//			}
-			
 		}
 	};
 	
-	OnAudioFocusChangeListener afChangeListener = new OnAudioFocusChangeListener() {
-	    public void onAudioFocusChange(int focusChange) {
-	        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
-	        {
-	        	synth.setStereoVolume(0.25f, 0.25f);
-	        } 
-	        else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) 
-	        {
-	        	synth.setStereoVolume(1.0f, 1.0f);
-	        } 
-	        else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) 
-	        {
-	        	synth.stopPlaying();
-	        }
-	    }
-	};
-	
-//	public void onKeyToggleClicked(View view) {
-//	    boolean useRandKey = ((ToggleButton) view).isChecked();
-//	    //pitchSpin.setClickable(!useRandKey);
-//	    //modeSpin.setClickable(!useRandKey);
-//	    
-//	    if (useRandKey)
-//	    {
-//		    songWriter.setKey(null);
-//		    songWriter.setScaleType(null);
-//	    }
-//	    else
-//	    {
-//	    	Pitch key = (Pitch)pitchSpin.getSelectedItem();
-//	    	ScaleType mode = (ScaleType)modeSpin.getSelectedItem();
-//	    	
-//			if (currSong != null)
-//			{
-//				currSong.key = key;
-//				currSong.scaleType = mode;
-//			}
-//		    songWriter.setKey(key);
-//		    songWriter.setScaleType(mode);
-//	    }
-//	}
-//	
-//	public void onChordInsToggleClicked(View view) {
-//	    boolean useRandChordIns = ((ToggleButton) view).isChecked();
-//	    //insChordSpin.setClickable(!useRandChordIns);
-//	    
-//	    if (useRandChordIns)
-//	    	songWriter.setChordInstrument(null);
-//	}
-//	
-//	public void onMelodyInsToggleClicked(View view) {
-//		boolean useRandMelodyIns = ((ToggleButton) view).isChecked();
-//		//insMelodySpin.setClickable(!useRandMelodyIns);
-//		
-//		if (useRandMelodyIns)
-//			songWriter.setMelodyInstrument(null);
-//	}
+	private FluidDroidSynth getSynth()
+	{
+		FluidDroidSynthFragment synthFragment = (FluidDroidSynthFragment)getSupportFragmentManager().findFragmentByTag("SynthFragment");
+		if (synthFragment == null)
+		{
+			Log.e("BRYAN", "Could not find synth fragment!");
+			return null;
+		}
+		
+		return synthFragment.mSynth;
+	}
 	
 	public void onRandomToggleClicked(View view) {
 		syncControlSettings(false);
@@ -423,78 +329,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
 	{
 		syncControlSettings();
-/*		
- * 		Removing this temporarily. Just randomly generate until I add more customization later
- * 
- * 		Spinner spinner = (Spinner) parent;
-		String value = parent.getItemAtPosition(pos).toString();
-		if (spinner.getId() == R.id.timeSigNum)
-			songWriter.setTimeSigNumerator(Integer.parseInt(value));
-		else if (spinner.getId() == R.id.timeSigDenom)
-			songWriter.setTimeSigDenominator(Integer.parseInt(value));*/
-		
-		// Update both the current song in case the user plays it again and the
-		// SongWriter for writing another song
-//		boolean updateSong = (currSong != null);
-//		boolean modified = false;
-//		
-//		Spinner spinner = (Spinner) parent;
-//		Object value = parent.getItemAtPosition(pos);//.toString();
-//		if (spinner.getId() == R.id.pitchSpinner)
-//		{
-//			MusicStructure.Pitch key = (MusicStructure.Pitch)value;
-//			if (updateSong)
-//				currSong.key = key;
-//			
-//			// doing random right now
-//			if (!keyToggle.isChecked() && key != songWriter.getKey())
-//			{
-//				songWriter.setKey(key);
-//				modified = true;
-//			}
-//		}
-//		else if (spinner.getId() == R.id.modeSpinner)
-//		{
-//			MusicStructure.ScaleType mode = (MusicStructure.ScaleType)value;
-//			if (updateSong)
-//				currSong.scaleType = mode;
-//			
-//			// doing random right now
-//			if (keyToggle.isChecked() && mode != songWriter.getScaleType())
-//			{
-//				songWriter.setScaleType(mode);
-//				modified = true;
-//			}
-//		}
-//		else if (spinner.getId() == R.id.insChordSpinner)
-//		{			
-//			MidiProgram ins = (MidiProgram)value;
-//			if (updateSong)
-//				currSong.chordInstrument = ins;
-//			
-//			if (insChordToggle.isChecked() && ins != songWriter.getChordInstrument())
-//			{
-//				songWriter.setChordInstrument(ins);
-//				modified = true;
-//			}
-//		}
-//		else if (spinner.getId() == R.id.insMelodySpinner)
-//		{			
-//			MidiProgram ins = (MidiProgram)value;
-//			if (updateSong)
-//				currSong.melodyInstrument = ins;
-//			
-//			if (insMelodyToggle.isChecked() && ins != songWriter.getMelodyInstrument())
-//			{
-//				songWriter.setMelodyInstrument(ins);
-//				modified = true;
-//			}
-//		}
-//		else
-//			return;
-//		
-//		if (updateSong && modified)
-//			needMIDIRefresh = true;
     }
 
 	@Override
@@ -511,28 +345,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			return;
 		
 		String displayString = "";
-//		displayString += "Time Signature: ";
-//		displayString += currSong.timeSigNum + "/" + currSong.timeSigDenom;
-//		displayString = displayString + "\nTempo: " + currSong.tempo + " BPM";
-//		displayString = displayString + "\nChord instrument: " + currSong.chordInstrument;
-//		displayString = displayString + "\nMelody instrument: " + currSong.melodyInstrument;
-//		displayString += "\nScale: " + currSong.key.toString() + " " + currSong.scaleType;
+
 		displayString = displayString /*+ "\n"*/ + currSong.structure.toString();
-		//displayString = displayString + "\nVerse: " + currSong.verseProgression.getChords();
-		//displayString = displayString + "\nChorus: " + currSong.chorusProgression.getChords();
-		//displayString = displayString + "\nBridge: " + currSong.bridgeProgression.getChords();
-		
-		/* Don't want to show these for now... 
-		displayString += "\nRhythm1: " + currSong.rhythm1;
-		displayString += "\nRhythm2: " + currSong.rhythm2;
-		
-		displayString += "\nTheme: " + currSong.theme;
-		*/
-		
-		//displayString += "\nMelody: " + currSong.melody;
-		
-		//displayString += "\nVerse Notes: " + currSong.verseProgression.getNotes();//.melody;
-		//displayString += "\nChorus Notes: " + currSong.chorusProgression.getNotes();
 		
 		songStructureView.setText(displayString);
 		
@@ -639,12 +453,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		    outStream = new FileOutputStream(saveFile);
 		    destination = outStream.getChannel();
 	        destination.transferFrom(source, 0, source.size());
-
-		    /*
-		    // it may already exist, but just be safe
-		    createMidiFile();
-		    midiSong.writeToFile(saveFile);
-		    */
 	    }
 	    catch(Exception e) {
 	    	showError(getResources().getString(R.string.error_create_MIDI));
@@ -654,7 +462,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	            try {
 					source.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        }
@@ -662,7 +469,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	            try {
 					destination.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        }
@@ -719,7 +525,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(newAdapter);
 		spinner.setOnItemSelectedListener(this);
-		//spinner.setClickable(false);
 	}
 	
 	protected <T> void initSpinnerFromArray(Spinner spinner, T[] array)
@@ -728,7 +533,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(newAdapter);
 		spinner.setOnItemSelectedListener(this);
-		//spinner.setClickable(false);
 	}
 	
 	protected boolean setSpinnerValue(Spinner spinner, Object value)
