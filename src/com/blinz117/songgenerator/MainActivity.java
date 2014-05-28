@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blinz117.fluiddroid.*;
+import com.blinz117.fluiddroid.FluidDroidSynth.SongFinishedListener;
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
 import com.blinz117.songbuilder.songstructure.*;
 import com.blinz117.songbuilder.songstructure.MusicStructure.Pitch;
 import com.blinz117.songbuilder.songstructure.MusicStructure.ScaleType;
+import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
+import com.blinz117.songgenerator.SongViewFragment.SongChangedListener;
 import com.google.gson.Gson;
 
 import com.leff.midi.*;
 import com.leff.midi.event.ProgramChange.MidiProgram;
 
-import android.media.AudioManager;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.content.Context;
@@ -29,7 +30,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.support.v4.app.*;
 
 public class MainActivity extends FragmentActivity implements OnItemSelectedListener, 
-		SaveFileDialogFragment.SaveFileDialogListener, SongViewFragment.SongChangedListener{
+		SaveFileDialogListener, SongChangedListener, SongFinishedListener{
 
 	boolean bIsPlaying;
 	
@@ -228,12 +229,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			
 			if (bIsPlaying)
 			{
+				// when the synth has stopped playing, we should receive a callback, at
+				// which point we will set the UI to its proper state
 				synth.stopPlaying();
-				bIsPlaying = false;
-				
-				songGenButton.setEnabled(true);
-				
-				playButton.setText(getResources().getString(R.string.play_song));
 				
 				return;
 			}
@@ -554,5 +552,14 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		currSong = newSong;
 		needMIDIRefresh = true;
 		updateDisplay();
+	}
+
+	@Override
+	public void onSongFinished() {
+		bIsPlaying = false;
+		
+		songGenButton.setEnabled(true);
+		
+		playButton.setText(getResources().getString(R.string.play_song));
 	}
 }
