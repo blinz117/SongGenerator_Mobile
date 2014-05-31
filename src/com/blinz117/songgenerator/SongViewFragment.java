@@ -105,8 +105,20 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
 //		//update view
 //		Context context = songBlockContainer.getContext();
 		
-		songPartSpinner.setSelection(0);
-		songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
+		if (currSong != null)
+		{
+			songPartSpinner.setSelection(0);
+			songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
+			
+			// Workaround to set scroll to top of song view.
+			songBlockContainer.post(new Runnable(){
+				@Override
+				public void run()
+				{
+					songBlockContainer.setSelection(0);
+				}
+			});
+		}
 		
 //		ArrayList<Integer> chords = currSong.verseProgression.getChords();
 //		ArrayList<ArrayList<Note>> notes = currSong.verseProgression.getNotes();
