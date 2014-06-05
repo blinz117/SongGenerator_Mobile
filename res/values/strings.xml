@@ -10,6 +10,13 @@
     <string name="stop_play">Stop</string>
     <string name="save_song">Save</string>
     
+    <string name="time_sig_prompt">TIME SIGNATURE</string>
+    <string name="scale_prompt">SCALE</string>
+    <string name="melody_ins_prompt">MELODY INSTRUMENT</string>
+    <string name="chord_ins_prompt">CHORD INSTRUMENT</string>
+    
+    <string name="no_song_prompt">Generate a new song by pressing the \"Generate\" button. The chord progression will be displayed here.</string>
+    
     <!-- error strings -->
     <string name="error_create_MIDI">Oops! Something bad happened trying to create a new MIDI file!</string>
     <string name="error_read_MIDI">Oops! Something bad happened trying to read your MIDI file!</string>

@@ -49,20 +49,22 @@
 				android:enabled="false"
 				android:text="@string/save_song"/> -->
 	
+			<TextView
+				android:id="@+id/timeSigPrompt"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/time_sig_prompt"
+				android:textSize="@dimen/defaultTextSize"
+				android:layout_below="@+id/songGen"
+				style="@style/LightTextColor" />
+			
 			<LinearLayout
 				android:id="@+id/timeSigRow"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/songGen"
+				android:layout_below="@+id/timeSigPrompt"
 				android:orientation="horizontal">
-	
-				<TextView
-					android:id="@+id/timeSigPrompt"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="Time Signature"
-					android:textSize="@dimen/defaultTextSize"/>
 	
 				<Spinner
 					android:id="@+id/timeSigNumerSpinner"
@@ -110,7 +112,7 @@
 			</LinearLayout>
 	
 			<LinearLayout
-				android:id="@+id/scaleRow"
+				android:id="@+id/scaleRow1"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
@@ -121,8 +123,25 @@
 					android:id="@+id/scalePrompt"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="Scale"
-					android:textSize="@dimen/defaultTextSize"/>
+					android:text="@string/scale_prompt"
+					android:textSize="@dimen/defaultTextSize"
+					style="@style/LightTextColor" />
+	
+				<ToggleButton
+					android:id="@+id/randKeyToggle"
+					android:layout_width="wrap_content"
+					android:layout_height="32dp"
+					android:onClick="onRandomToggleClicked"/>
+	
+			</LinearLayout>
+			
+			<LinearLayout
+				android:id="@+id/scaleRow2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/scaleRow1"
+				android:orientation="horizontal">
 	
 				<Spinner
 					android:id="@+id/pitchSpinner"
@@ -136,12 +155,6 @@
 					android:layout_height="wrap_content"
 					tools:listitem="@layout/default_spinner_item"/>
 	
-				<ToggleButton
-					android:id="@+id/randKeyToggle"
-					android:layout_width="wrap_content"
-					android:layout_height="32dp"
-					android:onClick="onRandomToggleClicked"/>
-	
 			</LinearLayout>
 	
 			<LinearLayout
@@ -149,21 +162,15 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/scaleRow">
+				android:layout_below="@+id/scaleRow2">
 	
 				<TextView
 					android:id="@+id/insChordPrompt"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="Chord Instrument"
-					android:textSize="@dimen/defaultTextSize"/>
-	
-				<Spinner
-					android:id="@+id/insChordSpinner"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					tools:listitem="@layout/default_spinner_item"/>
+					android:text="@string/chord_ins_prompt"
+					android:textSize="@dimen/defaultTextSize"
+					style="@style/LightTextColor" />
 	
 				<ToggleButton
 					android:id="@+id/randChordInsToggle"
@@ -172,27 +179,28 @@
 					android:onClick="onRandomToggleClicked"/>
 	
 			</LinearLayout>
+			
+			<Spinner
+			    android:id="@+id/insChordSpinner"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    tools:listitem="@layout/default_spinner_item"
+			    android:layout_below="@+id/insChordRow" />
 	
 			<LinearLayout
 				android:id="@+id/insMelodyRow"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/insChordRow">
+				android:layout_below="@+id/insChordSpinner">
 	
 				<TextView
 					android:id="@+id/insMelodyPrompt"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="Melody Instrument"
-					android:textSize="@dimen/defaultTextSize"/>
-	
-				<Spinner
-					android:id="@+id/insMelodySpinner"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					tools:listitem="@layout/default_spinner_item"/>
+					android:text="@string/melody_ins_prompt"
+					android:textSize="@dimen/defaultTextSize"
+					style="@style/LightTextColor" />
 	
 				<ToggleButton
 					android:id="@+id/randMelodyInsToggle"
@@ -201,6 +209,13 @@
 					android:onClick="onRandomToggleClicked"/>
 	
 			</LinearLayout>
+			
+			<Spinner
+				android:id="@+id/insMelodySpinner"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:listitem="@layout/default_spinner_item"
+				android:layout_below="@+id/insMelodyRow" />
 	
 		</RelativeLayout>
 	</ScrollView>
@@ -223,12 +238,13 @@
 			class="com.blinz117.songgenerator.SongViewFragment"
 			tools:layout="@layout/song_view_layout"/>
 	
-		<TextView
+<!-- 		<TextView
 			android:id="@+id/songStructure"
 			style="@style/DefaultTextColor"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="@dimen/defaultTextSize"/>
+			android:textSize="@dimen/defaultTextSize"/> -->
+		
 	</LinearLayout>
 	
 </LinearLayout>

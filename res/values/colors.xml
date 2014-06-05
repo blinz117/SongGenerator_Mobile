@@ -2,6 +2,8 @@
 <resources>
     
    <color name="DarkGrey">#333333</color>
-   <color name="LightGrey">#EEEE</color>
+   <color name="MidGrey">#999999</color>
+   <color name="LightGrey">#EEEEEE</color>
+   <color name="White">#FFFFFF</color>
     
 </resources>

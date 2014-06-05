@@ -50,7 +50,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	ToggleButton insMelodyToggle;
 	
 	Button songGenButton;
-	TextView songStructureView;
+	//TextView songStructureView;
 	Button playButton;
 	
 	SongWriter songWriter;
@@ -121,7 +121,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		songGenButton = (Button)findViewById(R.id.songGen);
 		songGenButton.setOnClickListener(onSongGenerate);
-		songStructureView = (TextView)findViewById(R.id.songStructure);
+		//songStructureView = (TextView)findViewById(R.id.songStructure);
 		
 		playButton = (Button)findViewById(R.id.songPlay);
 		playButton.setOnClickListener(onPlaySong);
@@ -342,11 +342,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		if (currSong == null)
 			return;
 		
-		String displayString = "";
-
-		displayString = displayString /*+ "\n"*/ + currSong.structure.toString();
-		
-		songStructureView.setText(displayString);
+//		String displayString = "";
+//
+//		displayString = displayString /*+ "\n"*/ + currSong.structure.toString();
+//		
+//		songStructureView.setText(displayString);
 		
 		// Set new control values
 		setSpinnerValue(timeSigNumSpin, (Integer)currSong.timeSigNum);

@@ -14,7 +14,8 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
 
 	private Song currSong;
 	private GridView songBlockContainer;
-	private Spinner songPartSpinner;
+//	private Spinner songPartSpinner;
+	private TextView NoSongPrompt;
 
     private String[] partList = {"Verse + Chorus", "Verse", "Chorus"};
     
@@ -79,6 +80,7 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.song_view_layout, container, false);
         
+        NoSongPrompt = (TextView)view.findViewById(R.id.noSongDisplay);
         songBlockContainer = (GridView)view.findViewById(R.id.songBlockContainer);
         
         Context context = songBlockContainer.getContext();
@@ -86,11 +88,11 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
         songBlocks = new SongBlockAdapter(context);
         songBlockContainer.setAdapter(songBlocks);
         
-        songPartSpinner = (Spinner)view.findViewById(R.id.songPartSpinner);
+//        songPartSpinner = (Spinner)view.findViewById(R.id.songPartSpinner);
 		ArrayAdapter<String> newAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, partList);
 		newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		songPartSpinner.setAdapter(newAdapter);
-		songPartSpinner.setOnItemSelectedListener(this);
+//		songPartSpinner.setAdapter(newAdapter);
+//		songPartSpinner.setOnItemSelectedListener(this);
         
         return view;
     }
@@ -107,7 +109,10 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
 		
 		if (currSong != null)
 		{
-			songPartSpinner.setSelection(0);
+			NoSongPrompt.setVisibility(View.GONE);
+			songBlockContainer.setVisibility(View.VISIBLE);
+			
+//			songPartSpinner.setSelection(0);
 			songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
 			
 			// Workaround to set scroll to top of song view.

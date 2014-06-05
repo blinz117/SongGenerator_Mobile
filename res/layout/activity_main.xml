@@ -56,8 +56,9 @@
 				android:id="@+id/timeSigPrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Time Signature"
-				android:textSize="@dimen/defaultTextSize"/>
+				android:text="@string/time_sig_prompt"
+				android:textSize="@dimen/defaultTextSize"
+				style="@style/LightTextColor" />
 
 			<Spinner
 				android:id="@+id/timeSigNumerSpinner"
@@ -116,8 +117,9 @@
 				android:id="@+id/scalePrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Scale"
-				android:textSize="@dimen/defaultTextSize"/>
+				android:text="@string/scale_prompt"
+				android:textSize="@dimen/defaultTextSize"
+				style="@style/LightTextColor" />
 
 			<Spinner
 				android:id="@+id/pitchSpinner"
@@ -150,8 +152,9 @@
 				android:id="@+id/insChordPrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Chord Instrument"
-				android:textSize="@dimen/defaultTextSize"/>
+				android:text="@string/chord_ins_prompt"
+				android:textSize="@dimen/defaultTextSize"
+				style="@style/LightTextColor" />
 
 			<Spinner
 				android:id="@+id/insChordSpinner"
@@ -179,8 +182,9 @@
 				android:id="@+id/insMelodyPrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Melody Instrument"
-				android:textSize="@dimen/defaultTextSize"/>
+				android:text="@string/melody_ins_prompt"
+				android:textSize="@dimen/defaultTextSize"
+				style="@style/LightTextColor" />
 
 			<Spinner
 				android:id="@+id/insMelodySpinner"
@@ -207,12 +211,12 @@
 		class="com.blinz117.songgenerator.SongViewFragment"
 		tools:layout="@layout/song_view_layout"/>
 
-	<TextView
+<!-- 	<TextView
 		android:id="@+id/songStructure"
 		style="@style/DefaultTextColor"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:textSize="@dimen/defaultTextSize"/>
+		android:textSize="@dimen/defaultTextSize"/> -->
 
 </LinearLayout>
 
