@@ -1,6 +1,7 @@
 package com.blinz117.songgenerator;
 
-import com.blinz117.songbuilder.songstructure.ChordProgression;
+import com.blinz117.songbuilder.songstructure.*;
+import com.blinz117.songbuilder.songstructure.MusicStructure.*;
 
 import android.content.Context;
 import android.view.*;
@@ -11,17 +12,28 @@ public class SongBlockAdapter extends BaseAdapter{
 
 	private Context mContext;
 	private ChordProgression mChordProgression;
+	private Pitch mKey;
+	private ScaleType mScale;
 	
 	public SongBlockAdapter(Context context)
 	{
 		mContext = context;
 		mChordProgression = null;
+		
+		mKey = null;
+		mScale = null;
 	}
 	
 	public void setProgression(ChordProgression chordProgression)
 	{
 		mChordProgression = chordProgression;
 		notifyDataSetChanged();
+	}
+	
+	public void setKey(Pitch key, ScaleType scale)
+	{
+		mKey = key;
+		mScale = scale;
 	}
 	
 	@Override
@@ -53,7 +65,16 @@ public class SongBlockAdapter extends BaseAdapter{
         	songBlock = (Button) convertView;
         }
 
-        songBlock.setText(mChordProgression.getChords().get(position) + "");
+        // Get scale degree of root of chord (in scale degrees)
+        int chordDegree = mChordProgression.getChords().get(position);
+        // Get absolute note of key (in semitones)
+        int key = mKey.ordinal();
+        // Get offset of chord degree from root of chord (in semitones)
+        int offset = mScale.getAbsIntervals()[chordDegree - 1];
+        // Get absolute note value of chord root (in semitones)
+        int chordPitchNdx = (key + offset) % 12;
+        Pitch newPitch = Pitch.values()[chordPitchNdx];
+        songBlock.setText(newPitch + "/" + chordDegree);
         return songBlock;
     }
 

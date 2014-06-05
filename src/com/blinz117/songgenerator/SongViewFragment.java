@@ -113,6 +113,7 @@ public class SongViewFragment extends Fragment implements OnItemSelectedListener
 			songBlockContainer.setVisibility(View.VISIBLE);
 			
 //			songPartSpinner.setSelection(0);
+			songBlocks.setKey(currSong.key, currSong.scaleType);
 			songBlocks.setProgression(currSong.verseProgression.plus(currSong.chorusProgression));
 			
 			// Workaround to set scroll to top of song view.
