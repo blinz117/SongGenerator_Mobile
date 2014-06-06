@@ -11,6 +11,7 @@
     <string name="save_song">Save</string>
     
     <string name="time_sig_prompt">TIME SIGNATURE</string>
+    <string name="tempo_prompt">TEMPO</string>
     <string name="scale_prompt">SCALE</string>
     <string name="melody_ins_prompt">MELODY INSTRUMENT</string>
     <string name="chord_ins_prompt">CHORD INSTRUMENT</string>

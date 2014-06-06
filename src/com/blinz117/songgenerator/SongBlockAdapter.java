@@ -72,9 +72,12 @@ public class SongBlockAdapter extends BaseAdapter{
         // Get offset of chord degree from root of chord (in semitones)
         int offset = mScale.getAbsIntervals()[chordDegree - 1];
         // Get absolute note value of chord root (in semitones)
-        int chordPitchNdx = (key + offset) % 12;
+        int chordPitchNdx = (key + offset) % MusicStructure.NUMPITCHES;
         Pitch newPitch = Pitch.values()[chordPitchNdx];
-        songBlock.setText(newPitch + "/" + chordDegree);
+        
+        ChordType chordType = mScale.getTriadChordType(chordDegree);
+        
+        songBlock.setText(newPitch + "" + chordType + " (" + chordDegree + ")");
         return songBlock;
     }
 

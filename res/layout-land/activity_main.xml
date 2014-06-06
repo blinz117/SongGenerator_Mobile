@@ -95,6 +95,14 @@
 				android:layout_below="@+id/timeSigRow"
 				android:orientation="horizontal">
 	
+			    <TextView
+					android:id="@+id/tempoPrompt"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/tempo_prompt"
+					android:textSize="@dimen/defaultTextSize"
+					style="@style/LightTextColor" />
+			    		    
 				<EditText
 					android:id="@+id/tempoVal"
 					android:layout_width="wrap_content"
@@ -103,7 +111,7 @@
 					android:textSize="@dimen/defaultTextSize"/>
 	
 				<TextView
-					android:id="@+id/tempoPrompt"
+					android:id="@+id/bpmIndicator"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="bpm"
