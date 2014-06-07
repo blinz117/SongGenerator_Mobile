@@ -317,6 +317,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			currSong.scaleType = mode;
 			currSong.chordInstrument = insChord;
 			currSong.melodyInstrument = insMelody;
+			
+			songViewFrag.setSong(currSong);
 
 	    	needMIDIRefresh = true;
 		}
