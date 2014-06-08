@@ -47,9 +47,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	EditText tempoValue;
 	
-	ToggleButton keyToggle;
-	ToggleButton insChordToggle;
-	ToggleButton insMelodyToggle;
+	CheckBox keyToggle;
+	CheckBox insChordToggle;
+	CheckBox insMelodyToggle;
 	
 	Button songGenButton;
 	//TextView songStructureView;
@@ -88,13 +88,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		songViewFrag = (SongViewFragment)fm.findFragmentById(R.id.songGridFragment);
 		
-		keyToggle = (ToggleButton)findViewById(R.id.randKeyToggle);
+		keyToggle = (CheckBox)findViewById(R.id.randKeyToggle);
 		keyToggle.setChecked(true);
 		
-		insChordToggle = (ToggleButton)findViewById(R.id.randChordInsToggle);
+		insChordToggle = (CheckBox)findViewById(R.id.randChordInsToggle);
 		insChordToggle.setChecked(true);
 		
-		insMelodyToggle = (ToggleButton)findViewById(R.id.randMelodyInsToggle);
+		insMelodyToggle = (CheckBox)findViewById(R.id.randMelodyInsToggle);
 		insMelodyToggle.setChecked(true);
 		
 		timeSigValue = (TextView)findViewById(R.id.timeSigVal);

@@ -142,11 +142,13 @@
 					android:textSize="@dimen/defaultTextSize"
 					style="@style/LightTextColor" />
 	
-				<ToggleButton
+				<CheckBox
 					android:id="@+id/randKeyToggle"
 					android:layout_width="wrap_content"
-					android:layout_height="32dp"
-					android:onClick="onRandomToggleClicked"/>
+					android:layout_height="wrap_content"
+					android:onClick="onRandomToggleClicked"
+					android:textSize="@dimen/defaultTextSize"
+					android:text="@string/random_prompt" />
 	
 			</LinearLayout>
 			
@@ -187,11 +189,13 @@
 					android:textSize="@dimen/defaultTextSize"
 					style="@style/LightTextColor" />
 	
-				<ToggleButton
+				<CheckBox
 					android:id="@+id/randChordInsToggle"
 					android:layout_width="wrap_content"
-					android:layout_height="32dp"
-					android:onClick="onRandomToggleClicked"/>
+					android:layout_height="wrap_content"
+					android:onClick="onRandomToggleClicked"
+					android:textSize="@dimen/defaultTextSize"
+					android:text="@string/random_prompt" />
 	
 			</LinearLayout>
 			
@@ -217,11 +221,13 @@
 					android:textSize="@dimen/defaultTextSize"
 					style="@style/LightTextColor" />
 	
-				<ToggleButton
+				<CheckBox
 					android:id="@+id/randMelodyInsToggle"
 					android:layout_width="wrap_content"
-					android:layout_height="32dp"
-					android:onClick="onRandomToggleClicked"/>
+					android:layout_height="wrap_content"
+					android:onClick="onRandomToggleClicked"
+					android:textSize="@dimen/defaultTextSize"
+					android:text="@string/random_prompt" />
 	
 			</LinearLayout>
 			

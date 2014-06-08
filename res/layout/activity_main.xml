@@ -148,11 +148,13 @@
 				android:layout_height="wrap_content"
 				tools:listitem="@layout/default_spinner_item"/>
 
-			<ToggleButton
-				android:id="@+id/randKeyToggle"
+			<CheckBox
+			    android:id="@+id/randKeyToggle"
 				android:layout_width="wrap_content"
-				android:layout_height="32dp"
-				android:onClick="onRandomToggleClicked"/>
+				android:layout_height="wrap_content"
+				android:onClick="onRandomToggleClicked"
+				android:textSize="@dimen/defaultTextSize"
+				android:text="@string/random_prompt" />
 
 		</LinearLayout>
 
@@ -178,11 +180,13 @@
 				android:layout_weight="1"
 				tools:listitem="@layout/default_spinner_item"/>
 
-			<ToggleButton
+			<CheckBox
 				android:id="@+id/randChordInsToggle"
 				android:layout_width="wrap_content"
-				android:layout_height="32dp"
-				android:onClick="onRandomToggleClicked"/>
+				android:layout_height="wrap_content"
+				android:onClick="onRandomToggleClicked"
+				android:textSize="@dimen/defaultTextSize"
+				android:text="@string/random_prompt" />
 
 		</LinearLayout>
 
@@ -208,11 +212,13 @@
 				android:layout_weight="1"
 				tools:listitem="@layout/default_spinner_item"/>
 
-			<ToggleButton
+			<CheckBox
 				android:id="@+id/randMelodyInsToggle"
 				android:layout_width="wrap_content"
-				android:layout_height="32dp"
-				android:onClick="onRandomToggleClicked"/>
+				android:layout_height="wrap_content"
+				android:onClick="onRandomToggleClicked"
+				android:textSize="@dimen/defaultTextSize"
+				android:text="@string/random_prompt" />
 
 		</LinearLayout>
 

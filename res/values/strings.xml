@@ -10,6 +10,8 @@
     <string name="stop_play">Stop</string>
     <string name="save_song">Save</string>
     
+    <string name="random_prompt">Random?</string>
+    
     <string name="time_sig_prompt">TIME SIGNATURE</string>
     <string name="tempo_prompt">TEMPO</string>
     <string name="scale_prompt">SCALE</string>
