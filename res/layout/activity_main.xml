@@ -60,7 +60,14 @@
 				android:textSize="@dimen/defaultTextSize"
 				style="@style/LightTextColor" />
 
-			<Spinner
+			<TextView
+			    android:id="@+id/timeSigVal"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="4/4"
+				android:textSize="@dimen/defaultTextSize"
+				android:layout_marginLeft="5dp" />
+<!-- 			<Spinner
 				android:id="@+id/timeSigNumerSpinner"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -77,7 +84,7 @@
 				android:id="@+id/timeSigDenomSpinner"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				tools:listitem="@layout/default_spinner_item"/>
+				tools:listitem="@layout/default_spinner_item"/> -->
 
 		</LinearLayout>
 

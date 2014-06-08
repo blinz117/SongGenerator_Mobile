@@ -36,12 +36,14 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	SongViewFragment songViewFrag;
 	
-	Spinner timeSigNumSpin;
-	Spinner timeSigDenomSpin;
+//	Spinner timeSigNumSpin;
+//	Spinner timeSigDenomSpin;
 	Spinner pitchSpin;
 	Spinner modeSpin;
 	Spinner insChordSpin;
 	Spinner insMelodySpin;
+	
+	TextView timeSigValue;
 	
 	EditText tempoValue;
 	
@@ -95,12 +97,13 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		insMelodyToggle = (ToggleButton)findViewById(R.id.randMelodyInsToggle);
 		insMelodyToggle.setChecked(true);
 		
+		timeSigValue = (TextView)findViewById(R.id.timeSigVal);
 		// Set up adapter and listener for spinners
-		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNumerSpinner);
-		initSpinnerFromList(timeSigNumSpin, timeSigNumVals);
-		
-		timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenomSpinner);
-		initSpinnerFromList(timeSigDenomSpin, timeSigDenomVals);
+//		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNumerSpinner);
+//		initSpinnerFromList(timeSigNumSpin, timeSigNumVals);
+//		
+//		timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenomSpinner);
+//		initSpinnerFromList(timeSigDenomSpin, timeSigDenomVals);
 		
 		pitchSpin = (Spinner) findViewById(R.id.pitchSpinner);
 		initSpinnerFromArray(pitchSpin, MusicStructure.PITCHES);
@@ -351,9 +354,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //		songStructureView.setText(displayString);
 		
 		// Set new control values
-		setSpinnerValue(timeSigNumSpin, (Integer)currSong.timeSigNum);
-		
-		setSpinnerValue(timeSigDenomSpin, (Integer)currSong.timeSigDenom);
+		timeSigValue.setText(currSong.timeSigNum + "/" + currSong.timeSigDenom);
+//		setSpinnerValue(timeSigNumSpin, (Integer)currSong.timeSigNum);
+//		
+//		setSpinnerValue(timeSigDenomSpin, (Integer)currSong.timeSigDenom);
 		
 		setSpinnerValue(pitchSpin, currSong.key);
 		
