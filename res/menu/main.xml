@@ -3,6 +3,9 @@
     <item
         android:id="@+id/action_save"
         android:title="@string/save_song"/>
+    <item
+        android:id="@+id/show_about"
+        android:title="@string/about_option"/>
 <!--     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

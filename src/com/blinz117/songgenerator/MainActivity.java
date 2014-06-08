@@ -22,6 +22,7 @@ import com.leff.midi.event.ProgramChange.MidiProgram;
 import android.os.Bundle;
 import android.os.Environment;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -206,9 +207,18 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	        case R.id.action_save:
 	        	showSaveDialog();
 	            return true;
+	        case R.id.show_about:
+	        	showAboutPage();
+	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
+	}
+	
+	private void showAboutPage()
+	{
+		Intent aboutIntent = new Intent(this, AboutActivity.class);
+		startActivity(aboutIntent);
 	}
 	
 	View.OnClickListener onSongGenerate = new View.OnClickListener() {
