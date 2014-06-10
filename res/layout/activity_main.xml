@@ -169,7 +169,7 @@
 				android:id="@+id/insChordPrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/chord_ins_prompt"
+				android:text="@string/chord_ins_prompt_short"
 				android:textSize="@dimen/defaultTextSize"
 				style="@style/LightTextColor" />
 
@@ -201,7 +201,7 @@
 				android:id="@+id/insMelodyPrompt"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/melody_ins_prompt"
+				android:text="@string/melody_ins_prompt_short"
 				android:textSize="@dimen/defaultTextSize"
 				style="@style/LightTextColor" />
 

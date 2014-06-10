@@ -10,6 +10,7 @@ import com.blinz117.fluiddroid.FluidDroidSynth.SongFinishedListener;
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
 import com.blinz117.songbuilder.songstructure.*;
+import com.blinz117.songbuilder.songstructure.MusicStructure.MidiInstrument;
 import com.blinz117.songbuilder.songstructure.MusicStructure.Pitch;
 import com.blinz117.songbuilder.songstructure.MusicStructure.ScaleType;
 import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
@@ -17,7 +18,6 @@ import com.blinz117.songgenerator.SongViewFragment.SongChangedListener;
 import com.google.gson.Gson;
 
 import com.leff.midi.*;
-import com.leff.midi.event.ProgramChange.MidiProgram;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -300,8 +300,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
     	Pitch key = (Pitch)pitchSpin.getSelectedItem();
     	ScaleType mode = (ScaleType)modeSpin.getSelectedItem();
-		MidiProgram insChord = (MidiProgram)insChordSpin.getSelectedItem();
-		MidiProgram insMelody = (MidiProgram)insMelodySpin.getSelectedItem();	
+		MidiInstrument insChord = (MidiInstrument)insChordSpin.getSelectedItem();
+		MidiInstrument insMelody = (MidiInstrument)insMelodySpin.getSelectedItem();	
 	    
 	    if (keyToggle.isChecked())
 	    {
@@ -382,7 +382,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		songViewFrag.setSong(currSong);
 	}
 	
-	public void showError(String message)
+	public void showMessage(String message)
 	{
 		Context context = getApplicationContext();
 		int duration = Toast.LENGTH_SHORT;
@@ -429,7 +429,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		}
 		catch  (Exception e) 
 		{ 
-			showError(getResources().getString(R.string.error_read_MIDI));
+			showMessage(getResources().getString(R.string.error_read_MIDI));
 			return null;
 		}
 	}
@@ -441,7 +441,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    if (!Environment.MEDIA_MOUNTED.equals(state))
 	    {
 	    	// couldn't access external storage
-	    	showError("Couldn't access external storage!");
+	    	showMessage("Couldn't access external storage!");
 	        return;
 	    }
 
@@ -457,7 +457,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		    if (saveFile.exists())
 		    {
 		    	// TODO: allow user to overwrite file or possible choose a different file name
-		    	showError("Oops! File already exists... should probably let you save it anyway at some point... Oh well!");
+		    	showMessage("Oops! File already exists... should probably let you save it anyway at some point... Oh well!");
 		    	return;
 		    }
 		    
@@ -467,9 +467,11 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		    outStream = new FileOutputStream(saveFile);
 		    destination = outStream.getChannel();
 	        destination.transferFrom(source, 0, source.size());
+	        
+	        showMessage("Exported " + saveFileName + ".mid to Music folder");
 	    }
 	    catch(Exception e) {
-	    	showError(getResources().getString(R.string.error_create_MIDI));
+	    	showMessage(getResources().getString(R.string.error_create_MIDI));
 	    }
 	    finally {
 	        if(source != null) {
@@ -495,7 +497,12 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	 */
 	public void showSaveDialog()
 	{
-   
+		if (currSong == null)
+		{
+			showMessage("No song has been generated. Please generate a song before saving it.");
+			return;
+		}
+		
 	    DialogFragment saveDialog = new SaveFileDialogFragment();
 	    saveDialog.show(getSupportFragmentManager(), "saveDialog");
 	}

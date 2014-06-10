@@ -8,7 +8,7 @@
     <string name="generate_song">Generate</string>
     <string name="play_song">Play</string>
     <string name="stop_play">Stop</string>
-    <string name="save_song">Save</string>
+    <string name="save_song">Export to MIDI</string>
     
     <string name="random_prompt">Random?</string>
     
@@ -17,6 +17,8 @@
     <string name="scale_prompt">SCALE</string>
     <string name="melody_ins_prompt">MELODY INSTRUMENT</string>
     <string name="chord_ins_prompt">CHORD INSTRUMENT</string>
+    <string name="melody_ins_prompt_short">MELODY INST.</string>
+    <string name="chord_ins_prompt_short">CHORD INST.</string>
     
     <string name="no_song_prompt">Generate a new song by pressing the \"Generate\" button. The chord progression will be displayed here.</string>
     
