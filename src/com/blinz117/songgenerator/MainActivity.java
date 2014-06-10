@@ -3,6 +3,7 @@ package com.blinz117.songgenerator;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.blinz117.fluiddroid.*;
@@ -39,6 +40,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 //	Spinner timeSigNumSpin;
 //	Spinner timeSigDenomSpin;
+	Spinner tempoSpin;
 	Spinner pitchSpin;
 	Spinner modeSpin;
 	Spinner insChordSpin;
@@ -46,8 +48,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	TextView timeSigValue;
 	
-	EditText tempoValue;
+//	EditText tempoValue;
 	
+	CheckBox tempoToggle;
 	CheckBox keyToggle;
 	CheckBox insChordToggle;
 	CheckBox insMelodyToggle;
@@ -65,8 +68,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	boolean needMIDIRefresh;
 	
-	final List<Integer> timeSigNumVals = convertIntArray(MusicStructure.TIMESIGNUMVALUES);
-	final List<Integer> timeSigDenomVals = convertIntArray(MusicStructure.TIMESIGDENOMVALUES);
+//	final List<Integer> timeSigNumVals = convertIntArray(MusicStructure.TIMESIGNUMVALUES);
+//	final List<Integer> timeSigDenomVals = convertIntArray(MusicStructure.TIMESIGDENOMVALUES);
+	
+	final List<Integer> tempoVals = convertIntArray(SongWriter.bpmValues);
 	
 	/*
 	 * State handlers
@@ -89,6 +94,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		songViewFrag = (SongViewFragment)fm.findFragmentById(R.id.songGridFragment);
 		
+		tempoToggle = (CheckBox)findViewById(R.id.randTempoToggle);
+		tempoToggle.setChecked(true);
+		
 		keyToggle = (CheckBox)findViewById(R.id.randKeyToggle);
 		keyToggle.setChecked(true);
 		
@@ -106,6 +114,9 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //		timeSigDenomSpin = (Spinner) findViewById(R.id.timeSigDenomSpinner);
 //		initSpinnerFromList(timeSigDenomSpin, timeSigDenomVals);
 		
+		tempoSpin = (Spinner)findViewById(R.id.tempoSpinner);
+		initSpinnerFromList(tempoSpin, tempoVals);
+		
 		pitchSpin = (Spinner) findViewById(R.id.pitchSpinner);
 		initSpinnerFromArray(pitchSpin, MusicStructure.PITCHES);
 		
@@ -118,10 +129,10 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		insMelodySpin = (Spinner) findViewById(R.id.insMelodySpinner);
 		initSpinnerFromArray(insMelodySpin, SongWriter.melodyInstruments);
 		
-		tempoValue = (EditText)findViewById(R.id.tempoVal);
-		tempoValue.setText("120");
-		tempoValue.setClickable(false);
-		tempoValue.setFocusable(false);
+//		tempoValue = (EditText)findViewById(R.id.tempoVal);
+//		tempoValue.setText("120");
+//		tempoValue.setClickable(false);
+//		tempoValue.setFocusable(false);
 		
 		songGenButton = (Button)findViewById(R.id.songGen);
 		songGenButton.setOnClickListener(onSongGenerate);
@@ -298,11 +309,17 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	{
 		updateCurrSong &= (currSong != null);
 		
+		Integer tempo = (Integer)tempoSpin.getSelectedItem();
     	Pitch key = (Pitch)pitchSpin.getSelectedItem();
     	ScaleType mode = (ScaleType)modeSpin.getSelectedItem();
 		MidiInstrument insChord = (MidiInstrument)insChordSpin.getSelectedItem();
 		MidiInstrument insMelody = (MidiInstrument)insMelodySpin.getSelectedItem();	
 	    
+		if (tempoToggle.isChecked())
+			songWriter.setTempo(-1);
+		else
+			songWriter.setTempo(tempo);
+			
 	    if (keyToggle.isChecked())
 	    {
 		    songWriter.setKey(null);
@@ -326,6 +343,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	    
 	    if (updateCurrSong)
 		{
+	    	currSong.tempo = tempo;
 			currSong.key = key;
 			currSong.scaleType = mode;
 			currSong.chordInstrument = insChord;
@@ -369,6 +387,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 //		
 //		setSpinnerValue(timeSigDenomSpin, (Integer)currSong.timeSigDenom);
 		
+		setSpinnerValue(tempoSpin, currSong.tempo);
+		
 		setSpinnerValue(pitchSpin, currSong.key);
 		
 		setSpinnerValue(modeSpin, currSong.scaleType);
@@ -377,7 +397,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		setSpinnerValue(insMelodySpin, currSong.melodyInstrument);
 		
-		tempoValue.setText(currSong.tempo + "");
+//		tempoValue.setText(currSong.tempo + "");
 		
 		songViewFrag.setSong(currSong);
 	}

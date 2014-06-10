@@ -110,12 +110,11 @@
 					android:textSize="@dimen/defaultTextSize"
 					style="@style/LightTextColor" />
 			    		    
-				<EditText
-					android:id="@+id/tempoVal"
-					android:layout_width="wrap_content"
+			    <Spinner
+					android:id="@+id/tempoSpinner"
+					android:layout_width="42dp"
 					android:layout_height="wrap_content"
-					android:inputType="number"
-					android:textSize="@dimen/defaultTextSize"/>
+					tools:listitem="@layout/default_spinner_item"/>	
 	
 				<TextView
 					android:id="@+id/bpmIndicator"
@@ -123,7 +122,15 @@
 					android:layout_height="wrap_content"
 					android:text="bpm"
 					android:textSize="@dimen/defaultTextSize"/>
-	
+				
+				<CheckBox
+				    android:id="@+id/randTempoToggle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:onClick="onRandomToggleClicked"
+					android:textSize="@dimen/defaultTextSize"
+					android:text="@string/random_prompt" />
+		
 			</LinearLayout>
 	
 			<LinearLayout
