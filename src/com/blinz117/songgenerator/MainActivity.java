@@ -149,6 +149,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		saveFileName = "";
 		
 		needMIDIRefresh = false;
+		
+		syncControlSettings(false);
 	}
 	
 	@Override
@@ -244,9 +246,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	View.OnClickListener onPlaySong = new View.OnClickListener() {
 		public void onClick(View view)
-		{		
-
-			
+		{
 			FluidDroidSynth synth = getSynth();
 			if (synth == null)
 				return;
@@ -280,7 +280,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			songGenButton.setEnabled(false);
 			
 			bIsPlaying = true;
-			
 		}
 	};
 	
@@ -305,6 +304,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		syncControlSettings(true);
 	}
 	
+	// We have to be pretty careful about how we handle this, because it could get called at odd times
+	// (such as when onItmeSelected gets called at weird times)
 	private void syncControlSettings(boolean updateCurrSong)
 	{
 		updateCurrSong &= (currSong != null);
@@ -315,40 +316,63 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		MidiInstrument insChord = (MidiInstrument)insChordSpin.getSelectedItem();
 		MidiInstrument insMelody = (MidiInstrument)insMelodySpin.getSelectedItem();	
 	    
-		if (tempoToggle.isChecked())
-			songWriter.setTempo(-1);
-		else
+		boolean bChanged = false;
+		
+		songWriter.setUseRandomTempo(tempoToggle.isChecked());
+		if (tempo != songWriter.getTempo())
+		{
 			songWriter.setTempo(tempo);
+			if (updateCurrSong)
+			{
+				currSong.tempo = tempo;
+				bChanged = true;
+			}
+		}
 			
-	    if (keyToggle.isChecked())
-	    {
-		    songWriter.setKey(null);
-		    songWriter.setScaleType(null);
-	    }
-	    else
+	    songWriter.setUseRandomScale(keyToggle.isChecked());
+	    if (key != songWriter.getKey())
 	    {
 			songWriter.setKey(key);
+			if (updateCurrSong)
+			{
+				currSong.key = key;
+				bChanged = true;
+			}
+	    }
+	    if (mode != songWriter.getScaleType())
+	    {
 			songWriter.setScaleType(mode);
+			if (updateCurrSong)
+			{
+				currSong.scaleType = mode;
+				bChanged = true;
+			}
 	    }
 	    
-	    if (insChordToggle.isChecked())
-	    	songWriter.setChordInstrument(null);
-	    else
+	    songWriter.setUseRandomChordInst(insChordToggle.isChecked());
+	    if (insChord != songWriter.getChordInstrument())
+	    {
 			songWriter.setChordInstrument(insChord);
+			if (updateCurrSong)
+			{
+				currSong.chordInstrument = insChord;
+				bChanged = true;
+			}
+	    }
 	    
-	    if (insMelodyToggle.isChecked())
-	    	songWriter.setMelodyInstrument(null);
-	    else
+	    songWriter.setUseRandomMelodyInst(insMelodyToggle.isChecked());
+	    if (insMelody != songWriter.getMelodyInstrument())
+	    {
 			songWriter.setMelodyInstrument(insMelody);
+			if (updateCurrSong)
+			{
+				currSong.melodyInstrument = insMelody;
+				bChanged = true;
+			}
+	    }
 	    
-	    if (updateCurrSong)
-		{
-	    	currSong.tempo = tempo;
-			currSong.key = key;
-			currSong.scaleType = mode;
-			currSong.chordInstrument = insChord;
-			currSong.melodyInstrument = insMelody;
-			
+	    if (bChanged)
+		{			
 			songViewFrag.setSong(currSong);
 
 	    	needMIDIRefresh = true;
@@ -396,6 +420,8 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		setSpinnerValue(insChordSpin, currSong.chordInstrument);
 		
 		setSpinnerValue(insMelodySpin, currSong.melodyInstrument);
+		
+		syncControlSettings(false);
 		
 //		tempoValue.setText(currSong.tempo + "");
 		
@@ -557,8 +583,6 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		return dest;
 	}
-	
-	
 
 	protected <T> void initSpinnerFromList(Spinner spinner, List<T> list)
 	{
