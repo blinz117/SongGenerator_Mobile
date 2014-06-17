@@ -77,7 +77,7 @@ public class SongBlockAdapter extends BaseAdapter{
         
         ChordType chordType = mScale.getTriadChordType(chordDegree);
         
-        songBlock.setText(newPitch + "" + chordType + " (" + chordDegree + ")");
+        songBlock.setText(newPitch + "" + chordType);// + " (" + chordDegree + ")");
         return songBlock;
     }
 
