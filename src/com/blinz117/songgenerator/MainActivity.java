@@ -247,15 +247,15 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	View.OnClickListener onPlaySong = new View.OnClickListener() {
 		public void onClick(View view)
 		{
-			FluidDroidSynth synth = getSynth();
-			if (synth == null)
+			FluidDroidSynthFragment synthFrag = getSynthFragment();
+			if (synthFrag == null)
 				return;
 			
 			if (bIsPlaying)
 			{
 				// when the synth has stopped playing, we should receive a callback, at
 				// which point we will set the UI to its proper state
-				synth.stopPlaying();
+				synthFrag.stopPlaying();
 				
 				return;
 			}
@@ -270,7 +270,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			String tempMidiPath = getFilesDir().getAbsolutePath() + "/" + getResources().getString(R.string.temp_midi);
 			
 			// Make sure MIDI player started correctly
-			if (!synth.playMIDIFile(tempMidiPath))
+			if (!synthFrag.playMIDIFile(tempMidiPath))
 			{
 				Log.e("BRYAN", "Failed to start playing MIDI file!");
 				return;
@@ -283,7 +283,19 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		}
 	};
 	
-	private FluidDroidSynth getSynth()
+//	private FluidDroidSynth getSynth()
+//	{
+//		FluidDroidSynthFragment synthFragment = (FluidDroidSynthFragment)getSupportFragmentManager().findFragmentByTag("SynthFragment");
+//		if (synthFragment == null)
+//		{
+//			Log.e("BRYAN", "Could not find synth fragment!");
+//			return null;
+//		}
+//		
+//		return synthFragment.mSynth;
+//	}
+	
+	private FluidDroidSynthFragment getSynthFragment()
 	{
 		FluidDroidSynthFragment synthFragment = (FluidDroidSynthFragment)getSupportFragmentManager().findFragmentByTag("SynthFragment");
 		if (synthFragment == null)
@@ -292,7 +304,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 			return null;
 		}
 		
-		return synthFragment.mSynth;
+		return synthFragment;
 	}
 	
 	public void onRandomToggleClicked(View view) {
