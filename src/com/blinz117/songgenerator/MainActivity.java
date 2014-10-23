@@ -3,7 +3,6 @@ package com.blinz117.songgenerator;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.blinz117.fluiddroid.*;
@@ -11,9 +10,7 @@ import com.blinz117.fluiddroid.FluidDroidSynth.SongFinishedListener;
 import com.blinz117.songbuilder.MidiGenerator;
 import com.blinz117.songbuilder.SongWriter;
 import com.blinz117.songbuilder.songstructure.*;
-import com.blinz117.songbuilder.songstructure.MusicStructure.MidiInstrument;
-import com.blinz117.songbuilder.songstructure.MusicStructure.Pitch;
-import com.blinz117.songbuilder.songstructure.MusicStructure.ScaleType;
+import com.blinz117.songbuilder.songstructure.MusicStructure.*;
 import com.blinz117.songgenerator.SaveFileDialogFragment.SaveFileDialogListener;
 import com.blinz117.songgenerator.SongViewFragment.SongChangedListener;
 import com.google.gson.Gson;
@@ -73,6 +70,12 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	final List<Integer> tempoVals = convertIntArray(SongWriter.bpmValues);
 	
+	final int defaultTempo = 120;
+	final TimeSignature defaultTimeSig = TimeSignature.FOUR_FOUR;
+	final Pitch defaultPitch = Pitch.C;
+	final ScaleType defaultScaleType = ScaleType.MAJOR;
+	final MidiInstrument defaultInst = MidiInstrument.ACOUSTIC_GRAND_PIANO;
+	
 	/*
 	 * State handlers
 	 */
@@ -107,6 +110,7 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		insMelodyToggle.setChecked(true);
 		
 		timeSigValue = (TextView)findViewById(R.id.timeSigVal);
+		timeSigValue.setText(defaultTimeSig.toString());
 		// Set up adapter and listener for spinners
 //		timeSigNumSpin = (Spinner) findViewById(R.id.timeSigNumerSpinner);
 //		initSpinnerFromList(timeSigNumSpin, timeSigNumVals);
@@ -116,18 +120,23 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 		
 		tempoSpin = (Spinner)findViewById(R.id.tempoSpinner);
 		initSpinnerFromList(tempoSpin, tempoVals);
+		setSpinnerValue(tempoSpin, defaultTempo);
 		
 		pitchSpin = (Spinner) findViewById(R.id.pitchSpinner);
 		initSpinnerFromArray(pitchSpin, MusicStructure.PITCHES);
+		setSpinnerValue(pitchSpin, defaultPitch);
 		
 		modeSpin = (Spinner) findViewById(R.id.modeSpinner);
 		initSpinnerFromArray(modeSpin, MusicStructure.ScaleType.values());
+		setSpinnerValue(modeSpin, defaultScaleType);
 		
 		insChordSpin = (Spinner) findViewById(R.id.insChordSpinner);
 		initSpinnerFromArray(insChordSpin, SongWriter.chordInstruments);
+		setSpinnerValue(insChordSpin, defaultInst);
 		
 		insMelodySpin = (Spinner) findViewById(R.id.insMelodySpinner);
 		initSpinnerFromArray(insMelodySpin, SongWriter.melodyInstruments);
+		setSpinnerValue(insMelodySpin, defaultInst);
 		
 //		tempoValue = (EditText)findViewById(R.id.tempoVal);
 //		tempoValue.setText("120");
