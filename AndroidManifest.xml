@@ -25,11 +25,7 @@
         </activity>
         <activity
             android:name="com.blinz117.songgenerator.AboutActivity"
-            android:label="@string/about_option"
-            android:parentActivityName="com.blinz117.songgenerator.MainActivity" >
-            <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.blinz117.songgenerator.MainActivity" />
+            android:label="@string/about_option">
         </activity>
             
     </application>
