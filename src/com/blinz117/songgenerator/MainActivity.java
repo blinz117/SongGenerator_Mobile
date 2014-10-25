@@ -239,6 +239,16 @@ public class MainActivity extends FragmentActivity implements OnItemSelectedList
 	
 	private void showAboutPage()
 	{
+		if (bIsPlaying)
+		{
+			FluidDroidSynthFragment synthFrag = getSynthFragment();
+			if (synthFrag != null)
+			{
+				// when the synth has stopped playing, we should receive a callback, at
+				// which point we will set the UI to its proper state
+				synthFrag.stopPlaying();
+			}
+		}
 		Intent aboutIntent = new Intent(this, AboutActivity.class);
 		startActivity(aboutIntent);
 	}
